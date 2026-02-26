@@ -145,6 +145,16 @@ export default class Store {
         }
     }
 
+    async deleteTatami(tatamiId: string) {
+        try {
+            await TatamiService.deleteTatami(tatamiId)
+            await this.loadTatamis()
+        } catch (e: any) {
+            console.log(e?.response?.data?.message);
+            throw e;
+        }
+    }
+
     async updateTatamiStatus(tatamiId: string, isActive: boolean) {
         try {
             await TatamiService.updateTatamiStatus(tatamiId, isActive)
@@ -212,6 +222,20 @@ export default class Store {
             this.setFights(response.data)
         } catch (e: any) {
             console.log(e?.response?.data?.message);
+        }
+    }
+
+    async editFight(fightId: string, fighter1Id: string, fighter2Id: string) {
+        try {
+            await FightService.editFight(fightId, fighter1Id, fighter2Id)
+            if (this.myTatami) {
+                await this.loadFightsByTatami(this.myTatami._id);
+            } else {
+                await this.loadAllFights();
+            }
+        } catch (e: any) {
+            console.log(e?.response?.data?.message);
+            throw e;
         }
     }
 

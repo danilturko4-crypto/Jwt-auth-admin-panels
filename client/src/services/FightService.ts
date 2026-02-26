@@ -20,6 +20,14 @@ export default class FightService {
         return $api.get<IFight[]>('/fight/all')
     }
 
+    static async editFight(
+        fightId: string,
+        fighter1Id: string,
+        fighter2Id: string
+    ): Promise<AxiosResponse<IFight>> {
+        return $api.put('/fight/edit', { fightId, fighter1Id, fighter2Id })
+    }
+
     static async updateFightStatus(
         fightId: string,
         status: string

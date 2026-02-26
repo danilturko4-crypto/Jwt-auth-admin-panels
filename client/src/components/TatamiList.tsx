@@ -5,10 +5,11 @@ import type { ITatami } from "../models/ITatami";
 interface Props {
     tatamis: ITatami[];
     onStatusChange?: (tatamiId: string, isActive: boolean) => void;
+    onDelete?: (tatamiId: string) => void;
     canEdit?: boolean;
 }
 
-const TatamiList: FC<Props> = ({ tatamis, onStatusChange, canEdit = false }) => {
+const TatamiList: FC<Props> = ({ tatamis, onStatusChange, onDelete, canEdit = false }) => {
     
     if (tatamis.length === 0) {
         return (
@@ -51,20 +52,39 @@ const TatamiList: FC<Props> = ({ tatamis, onStatusChange, canEdit = false }) => 
                                 </p>
                             </div>
                             
-                            {canEdit && onStatusChange && (
-                                <button
-                                    onClick={() => onStatusChange(tatami._id, !tatami.isActive)}
-                                    style={{
-                                        padding: '8px 16px',
-                                        cursor: 'pointer',
-                                        backgroundColor: tatami.isActive ? '#f44336' : '#4caf50',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px'
-                                    }}
-                                >
-                                    {tatami.isActive ? 'Деактивировать' : 'Активировать'}
-                                </button>
+                            {canEdit && (
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {onStatusChange && (
+                                        <button
+                                            onClick={() => onStatusChange(tatami._id, !tatami.isActive)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                cursor: 'pointer',
+                                                backgroundColor: tatami.isActive ? '#f44336' : '#4caf50',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            {tatami.isActive ? 'Деактивировать' : 'Активировать'}
+                                        </button>
+                                    )}
+                                    {onDelete && (
+                                        <button
+                                            onClick={() => onDelete(tatami._id)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                cursor: 'pointer',
+                                                backgroundColor: '#9e9e9e',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            Удалить
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>

@@ -53,6 +53,17 @@ async createTatami(req, res, next) {
         }
     }
 
+    async deleteTatami(req, res, next) {
+        try {
+            const { tatamiId } = req.body
+            const userId = req.user.id
+            await tatamiService.deleteTatami(tatamiId, userId)
+            return res.json({ message: 'Татами удалено' })
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async updateTatamiStatus(req, res, next) {
         try {
             const { tatamiId, isActive } = req.body
