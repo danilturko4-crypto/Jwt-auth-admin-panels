@@ -30,6 +30,17 @@ class FightController {
         }
     }
 
+    async editFight(req, res, next) {
+        try {
+            const { fightId, fighter1Id, fighter2Id } = req.body
+            const userId = req.user.id
+            const fight = await fightService.editFight(fightId, fighter1Id, fighter2Id, userId)
+            return res.json(fight)
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async updateFightStatus(req, res, next) {
         try {
             const { fightId, status } = req.body

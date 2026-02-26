@@ -39,6 +39,16 @@ const SuperAdminPanel: FC = () => {
         }
     }
 
+    const handleTatamiDelete = async (tatamiId: string) => {
+        if (!confirm('Удалить татами? Привязка администратора также будет снята.')) return
+        try {
+            await store.deleteTatami(tatamiId)
+            await loadAdmins()
+        } catch (error) {
+            console.log('Ошибка удаления татами', error);
+        }
+    }
+
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ 
@@ -153,9 +163,10 @@ const SuperAdminPanel: FC = () => {
             {activeTab === 'tatamis' && (
                 <>
                     <CreateTatamiForm admins={admins} />
-                    <TatamiList 
-                        tatamis={store.tatamis} 
+                    <TatamiList
+                        tatamis={store.tatamis}
                         onStatusChange={handleTatamiStatusChange}
+                        onDelete={handleTatamiDelete}
                         canEdit={true}
                     />
                 </>
@@ -176,8 +187,11 @@ const SuperAdminPanel: FC = () => {
                 <FightList
                     fights={store.fights}
                     canEdit={true}
+                    fighters={store.fighters}
+                    groupByTatami={true}
                     onStatusChange={(id, status) => store.updateFightStatus(id, status)}
                     onResultChange={(id, winner, score) => store.updateFightResult(id, winner, score)}
+                    onEditFight={(id, f1, f2) => store.editFight(id, f1, f2)}
                 />
             )}
         </div>

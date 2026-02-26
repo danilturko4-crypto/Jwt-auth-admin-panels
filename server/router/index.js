@@ -46,6 +46,7 @@ router.post('/tatami/create',
 router.get('/tatami/all', authMiddleware, tatamiController.getAllTatami)
 router.get('/tatami/my', authMiddleware, tatamiController.getMyTatami)
 router.put('/tatami/status', authMiddleware, tatamiController.updateTatamiStatus)
+router.delete('/tatami/delete', authMiddleware, tatamiController.deleteTatami)
 
 // ========== FIGHTER MANAGEMENT ==========
 router.post('/fighter/create',
@@ -78,7 +79,14 @@ router.post('/fight/create',
 )
 router.get('/fight/tatami/:tatamiId', authMiddleware, fightController.getFightsByTatami)
 router.get('/fight/all', authMiddleware, fightController.getAllFights)
-router.put('/fight/status', 
+router.put('/fight/edit',
+    authMiddleware,
+    body('fightId').notEmpty(),
+    body('fighter1Id').notEmpty(),
+    body('fighter2Id').notEmpty(),
+    fightController.editFight
+)
+router.put('/fight/status',
     authMiddleware,
     body('fightId').notEmpty(),
     body('status').notEmpty(),

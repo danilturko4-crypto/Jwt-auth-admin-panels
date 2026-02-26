@@ -146,8 +146,10 @@ const AdminPanel: FC = () => {
                     <FightList
                         fights={store.fights}
                         canEdit={true}
+                        fighters={store.fighters}
                         onStatusChange={(id, status) => store.updateFightStatus(id, status)}
                         onResultChange={(id, winner, score) => store.updateFightResult(id, winner, score)}
+                        onEditFight={(id, f1, f2) => store.editFight(id, f1, f2)}
                     />
                 </>
             )}

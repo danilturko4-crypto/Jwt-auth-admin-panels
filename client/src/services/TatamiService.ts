@@ -21,6 +21,10 @@ export default class TatamiService {
         return $api.get<ITatami>('/tatami/my')
     }
 
+    static async deleteTatami(tatamiId: string): Promise<AxiosResponse> {
+        return $api.delete('/tatami/delete', { data: { tatamiId } })
+    }
+
     static async updateTatamiStatus(
         tatamiId: string, 
         isActive: boolean

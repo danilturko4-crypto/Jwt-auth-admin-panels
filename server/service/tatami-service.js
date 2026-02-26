@@ -46,6 +46,21 @@ class TatamiService {
         return tatami
     }
 
+    async deleteTatami(tatamiId, userId) {
+        const user = await UserModel.findById(userId)
+        if (!user || user.role !== 'superadmin') {
+            throw ApiError.BadRequest('Только суперадмин может удалять татами')
+        }
+
+        const tatami = await TatamiModel.findById(tatamiId)
+        if (!tatami) {
+            throw ApiError.BadRequest('Татами не найдено')
+        }
+
+        await UserModel.findByIdAndUpdate(tatami.admin, { assignedTatami: null })
+        await TatamiModel.findByIdAndDelete(tatamiId)
+    }
+
     async updateTatamiStatus(tatamiId, isActive, userId) {
         const user = await UserModel.findById(userId)
         if (!user || user.role !== 'superadmin') {
