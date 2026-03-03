@@ -15,10 +15,6 @@ class TatamiService {
             throw ApiError.BadRequest('Указанный админ не найден')
         }
 
-        if (admin.assignedTatami) {
-            throw ApiError.BadRequest('Этот админ уже привязан к другому татами')
-        }
-
         const existingTatami = await TatamiModel.findOne({ number })
         if (existingTatami) {
             throw ApiError.BadRequest(`Татами №${number} уже существует`)
@@ -30,8 +26,7 @@ class TatamiService {
             admin: adminId
         })
 
-        admin.assignedTatami = tatami._id
-        await admin.save()
+        await UserModel.findByIdAndUpdate(adminId, { $push: { assignedTatami: tatami._id } })
 
         return tatami
     }
@@ -57,7 +52,7 @@ class TatamiService {
             throw ApiError.BadRequest('Татами не найдено')
         }
 
-        await UserModel.findByIdAndUpdate(tatami.admin, { assignedTatami: null })
+        await UserModel.findByIdAndUpdate(tatami.admin, { $pull: { assignedTatami: tatamiId } })
         await TatamiModel.findByIdAndDelete(tatamiId)
     }
 

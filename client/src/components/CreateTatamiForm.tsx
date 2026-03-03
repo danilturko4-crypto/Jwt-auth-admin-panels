@@ -13,9 +13,14 @@ const CreateTatamiForm: FC<Props> = ({ admins }) => {
     const [success, setSuccess] = useState<string>('')
     const [error, setError] = useState<string>('')
     const { store } = useContext(Context)
+    const [selectedAdmin, setSelectedAdmin] = useState<any>(null)
 
-    
-    const availableAdmins = admins.filter(admin => !admin.assignedTatami)
+    const handleAdminChange = (e: any) => {
+        const id = e.target.value
+        const admin = admins.find(a => a.id === id)
+        setSelectedAdmin(admin)
+        setAdminId(id)
+    }
 
     const handleCreateTatami = async () => {
         setError('')
@@ -89,46 +94,37 @@ const CreateTatamiForm: FC<Props> = ({ admins }) => {
 
         <select
             value={adminId}
-            onChange={e => {
-                const selectedId = e.target.value
-                console.log('🔍 Выбран админ ID:', selectedId)
-                console.log('🔍 Тип ID:', typeof selectedId)
-                console.log('🔍 Длина ID:', selectedId.length)
-                
-                const selectedAdmin = availableAdmins.find(a => a.id === selectedId)
-                console.log('🔍 Найден админ:', selectedAdmin)
-                
-                setAdminId(selectedId)
-            }}
-            style={{ 
-                width: '100%', 
-                padding: '10px', 
+            onChange={handleAdminChange}
+            style={{
+                width: '100%',
+                padding: '10px',
                 marginBottom: '10px',
                 fontSize: '16px',
                 boxSizing: 'border-box'
             }}
         >
             <option value="">Выберите админа</option>
-            {availableAdmins.map(admin => {
-                console.log('Рендер опции:', admin.id, '->', admin.email)
+            {admins.map(admin => {
+                const tatamiCount = admin.assignedTatami?.length || 0
                 return (
                     <option key={admin.id} value={admin.id}>
-                        {admin.email} (ID: {admin.id})
+                        {admin.email} {tatamiCount > 0 ? `(${tatamiCount} татами)` : ''}
                     </option>
                 )
             })}
         </select>
 
-            {availableAdmins.length === 0 && (
-                <div style={{ 
-                    color: 'orange', 
+            {selectedAdmin && selectedAdmin.assignedTatami && selectedAdmin.assignedTatami.length > 0 && (
+                <div style={{
+                    color: '#ff9800',
                     marginBottom: '10px',
                     padding: '10px',
-                    backgroundColor: '#fff3cd',
+                    backgroundColor: '#fff3e0',
                     borderRadius: '4px',
-                    border: '1px solid #ffc107'
+                    border: '1px solid #ffb74d'
                 }}>
-                    ⚠️ Нет доступных админов (все уже привязаны к татами)
+                    ⓘ У админа {selectedAdmin.email} уже привязано {selectedAdmin.assignedTatami.length}
+                    {selectedAdmin.assignedTatami.length === 1 ? ' татами' : ' татами'}
                 </div>
             )}
 
@@ -158,15 +154,15 @@ const CreateTatamiForm: FC<Props> = ({ admins }) => {
                 </div>
             )}
 
-            <button 
+            <button
                 onClick={handleCreateTatami}
-                disabled={availableAdmins.length === 0 || !number || !name || !adminId}
-                style={{ 
-                    width: '100%', 
-                    padding: '12px', 
+                disabled={!number || !name || !adminId}
+                style={{
+                    width: '100%',
+                    padding: '12px',
                     fontSize: '16px',
-                    cursor: (availableAdmins.length === 0 || !number || !name || !adminId) ? 'not-allowed' : 'pointer',
-                    backgroundColor: (availableAdmins.length === 0 || !number || !name || !adminId) ? '#ccc' : '#2196F3',
+                    cursor: (!number || !name || !adminId) ? 'not-allowed' : 'pointer',
+                    backgroundColor: (!number || !name || !adminId) ? '#ccc' : '#2196F3',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',

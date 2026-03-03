@@ -5,7 +5,7 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
-    assignedTatami: { type: Schema.Types.ObjectId, ref: 'Tatami', default: null } // Привязка к татами
+    assignedTatami: [{ type: Schema.Types.ObjectId, ref: 'Tatami' }] // Привязанные татами
 })
 
 module.exports = model('User', UserSchema)
