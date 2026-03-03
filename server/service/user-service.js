@@ -90,14 +90,14 @@ class UserService {
 
 async getAllAdmins(){
     const admins = await userModel.find({ role: 'admin' })
-    
+
     const adminsDto = admins.map(admin => ({
-        id: admin._id.toString(), 
+        id: admin._id.toString(),
         email: admin.email,
         role: admin.role,
-        assignedTatami: admin.assignedTatami ? admin.assignedTatami.toString() : null
+        assignedTatami: Array.isArray(admin.assignedTatami) ? admin.assignedTatami.map(t => t.toString()) : []
     }))
-    
+
     console.log('📤 Отправка списка админов:', adminsDto)
     return adminsDto
 }
