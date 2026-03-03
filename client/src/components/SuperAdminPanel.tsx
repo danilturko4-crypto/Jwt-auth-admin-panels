@@ -149,7 +149,7 @@ const SuperAdminPanel: FC = () => {
                                 }}
                             >
                                 <strong>{admin.email}</strong>
-                                {admin.assignedTatami && admin.assignedTatami.length > 0 && (
+                                {Array.isArray(admin.assignedTatami) && admin.assignedTatami.length > 0 && (
                                     <span style={{ marginLeft: '10px', color: '#4caf50' }}>
                                         ✅ {admin.assignedTatami.length} {admin.assignedTatami.length === 1 ? 'татами' : 'татами'}
                                     </span>

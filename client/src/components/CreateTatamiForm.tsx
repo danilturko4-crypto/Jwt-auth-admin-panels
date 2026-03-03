@@ -105,7 +105,7 @@ const CreateTatamiForm: FC<Props> = ({ admins }) => {
         >
             <option value="">Выберите админа</option>
             {admins.map(admin => {
-                const tatamiCount = admin.assignedTatami?.length || 0
+                const tatamiCount = Array.isArray(admin.assignedTatami) ? admin.assignedTatami.length : 0
                 return (
                     <option key={admin.id} value={admin.id}>
                         {admin.email} {tatamiCount > 0 ? `(${tatamiCount} татами)` : ''}
@@ -114,7 +114,7 @@ const CreateTatamiForm: FC<Props> = ({ admins }) => {
             })}
         </select>
 
-            {selectedAdmin && selectedAdmin.assignedTatami && selectedAdmin.assignedTatami.length > 0 && (
+            {selectedAdmin && Array.isArray(selectedAdmin.assignedTatami) && selectedAdmin.assignedTatami.length > 0 && (
                 <div style={{
                     color: '#ff9800',
                     marginBottom: '10px',
