@@ -13,7 +13,6 @@ interface Props {
 }
 
 const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, onResultChange, onEditFight }) => {
-    const [showScoreForm, setShowScoreForm] = useState(false)
     const [showEditForm, setShowEditForm] = useState(false)
     const [score1, setScore1] = useState(fight.score.fighter1.toString())
     const [score2, setScore2] = useState(fight.score.fighter2.toString())
@@ -89,67 +88,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             </div>
 
             {/* Бойцы */}
-            {!showScoreForm ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
-                    {/* Боец 1 */}
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: fight.winner === 'fighter1' ? '#c8e6c9' : '#f5f5f5',
-                        borderRadius: '8px',
-                        border: fight.winner === 'fighter1' ? '2px solid #4caf50' : 'none'
-                    }}>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                            {fight.winner === 'fighter1' && '👑 '}
-                            🔴 {fight.fighter1.name}
-                        </div>
-                        {fight.fighter1.team && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Команда: {fight.fighter1.team}
-                            </div>
-                        )}
-                        {fight.fighter1.weight && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Вес: {fight.fighter1.weight}
-                            </div>
-                        )}
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#f44336' }}>
-                            {fight.score.fighter1}
-                        </div>
-                    </div>
-
-                    {/* VS */}
-                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
-                        VS
-                    </div>
-
-                    {/* Боец 2 */}
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: fight.winner === 'fighter2' ? '#c8e6c9' : '#f5f5f5',
-                        borderRadius: '8px',
-                        border: fight.winner === 'fighter2' ? '2px solid #4caf50' : 'none'
-                    }}>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                            {fight.winner === 'fighter2' && '👑 '}
-                            🔵 {fight.fighter2.name}
-                        </div>
-                        {fight.fighter2.team && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Команда: {fight.fighter2.team}
-                            </div>
-                        )}
-                        {fight.fighter2.weight && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Вес: {fight.fighter2.weight}
-                            </div>
-                        )}
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#2196F3' }}>
-                            {fight.score.fighter2}
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                // Интерактивные карточки для ввода счета
+            {fight.status === 'in_progress' ? (
+                // Интерактивные карточки во время боя
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
                     {/* Боец 1 */}
                     <div
@@ -288,6 +228,66 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                         </div>
                     </div>
                 </div>
+            ) : (
+                // Обычные карточки до боя и после
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
+                    {/* Боец 1 */}
+                    <div style={{
+                        padding: '15px',
+                        backgroundColor: fight.winner === 'fighter1' ? '#c8e6c9' : '#f5f5f5',
+                        borderRadius: '8px',
+                        border: fight.winner === 'fighter1' ? '2px solid #4caf50' : 'none'
+                    }}>
+                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
+                            {fight.winner === 'fighter1' && '👑 '}
+                            🔴 {fight.fighter1.name}
+                        </div>
+                        {fight.fighter1.team && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Команда: {fight.fighter1.team}
+                            </div>
+                        )}
+                        {fight.fighter1.weight && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Вес: {fight.fighter1.weight}
+                            </div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#f44336' }}>
+                            {fight.score.fighter1}
+                        </div>
+                    </div>
+
+                    {/* VS */}
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
+                        VS
+                    </div>
+
+                    {/* Боец 2 */}
+                    <div style={{
+                        padding: '15px',
+                        backgroundColor: fight.winner === 'fighter2' ? '#c8e6c9' : '#f5f5f5',
+                        borderRadius: '8px',
+                        border: fight.winner === 'fighter2' ? '2px solid #4caf50' : 'none'
+                    }}>
+                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
+                            {fight.winner === 'fighter2' && '👑 '}
+                            🔵 {fight.fighter2.name}
+                        </div>
+                        {fight.fighter2.team && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Команда: {fight.fighter2.team}
+                            </div>
+                        )}
+                        {fight.fighter2.weight && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Вес: {fight.fighter2.weight}
+                            </div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#2196F3' }}>
+                            {fight.score.fighter2}
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Управление */}
@@ -333,19 +333,6 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                     {fight.status === 'in_progress' && (
                         <>
                             <button
-                                onClick={() => setShowScoreForm(!showScoreForm)}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: '#4caf50',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ✅ Завершить бой
-                            </button>
-                            <button
                                 onClick={() => onStatusChange(fight._id, 'cancelled')}
                                 style={{
                                     padding: '10px 20px',
@@ -356,7 +343,20 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                                     cursor: 'pointer'
                                 }}
                             >
-                                ❌ Отменить
+                                ❌ Отменить бой
+                            </button>
+                            <button
+                                onClick={handleSaveResult}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#4caf50',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ✅ Завершить с текущим счетом
                             </button>
                         </>
                     )}
@@ -432,41 +432,6 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                             </button>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {/* Кнопка сохранения результата (показывается при заполнении счета) */}
-            {showScoreForm && (
-                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                    <button
-                        onClick={handleSaveResult}
-                        style={{
-                            padding: '12px 24px',
-                            backgroundColor: '#4caf50',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        ✅ Завершить и сохранить
-                    </button>
-                    <button
-                        onClick={() => setShowScoreForm(false)}
-                        style={{
-                            padding: '12px 24px',
-                            backgroundColor: '#999',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                    >
-                        ← Отмена
-                    </button>
                 </div>
             )}
 
