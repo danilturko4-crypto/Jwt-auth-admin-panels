@@ -89,64 +89,206 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             </div>
 
             {/* Бойцы */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
-                {/* Боец 1 */}
-                <div style={{
-                    padding: '15px',
-                    backgroundColor: fight.winner === 'fighter1' ? '#c8e6c9' : '#f5f5f5',
-                    borderRadius: '8px',
-                    border: fight.winner === 'fighter1' ? '2px solid #4caf50' : 'none'
-                }}>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        {fight.winner === 'fighter1' && '👑 '}
-                        🔴 {fight.fighter1.name}
-                    </div>
-                    {fight.fighter1.team && (
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                            Команда: {fight.fighter1.team}
+            {!showScoreForm ? (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
+                    {/* Боец 1 */}
+                    <div style={{
+                        padding: '15px',
+                        backgroundColor: fight.winner === 'fighter1' ? '#c8e6c9' : '#f5f5f5',
+                        borderRadius: '8px',
+                        border: fight.winner === 'fighter1' ? '2px solid #4caf50' : 'none'
+                    }}>
+                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
+                            {fight.winner === 'fighter1' && '👑 '}
+                            🔴 {fight.fighter1.name}
                         </div>
-                    )}
-                    {fight.fighter1.weight && (
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                            Вес: {fight.fighter1.weight}
+                        {fight.fighter1.team && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Команда: {fight.fighter1.team}
+                            </div>
+                        )}
+                        {fight.fighter1.weight && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Вес: {fight.fighter1.weight}
+                            </div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#f44336' }}>
+                            {fight.score.fighter1}
                         </div>
-                    )}
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#f44336' }}>
-                        {fight.score.fighter1}
                     </div>
-                </div>
 
-                {/* VS */}
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
-                    VS
-                </div>
+                    {/* VS */}
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
+                        VS
+                    </div>
 
-                {/* Боец 2 */}
-                <div style={{
-                    padding: '15px',
-                    backgroundColor: fight.winner === 'fighter2' ? '#c8e6c9' : '#f5f5f5',
-                    borderRadius: '8px',
-                    border: fight.winner === 'fighter2' ? '2px solid #4caf50' : 'none'
-                }}>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                        {fight.winner === 'fighter2' && '👑 '}
-                        🔵 {fight.fighter2.name}
-                    </div>
-                    {fight.fighter2.team && (
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                            Команда: {fight.fighter2.team}
+                    {/* Боец 2 */}
+                    <div style={{
+                        padding: '15px',
+                        backgroundColor: fight.winner === 'fighter2' ? '#c8e6c9' : '#f5f5f5',
+                        borderRadius: '8px',
+                        border: fight.winner === 'fighter2' ? '2px solid #4caf50' : 'none'
+                    }}>
+                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
+                            {fight.winner === 'fighter2' && '👑 '}
+                            🔵 {fight.fighter2.name}
                         </div>
-                    )}
-                    {fight.fighter2.weight && (
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                            Вес: {fight.fighter2.weight}
+                        {fight.fighter2.team && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Команда: {fight.fighter2.team}
+                            </div>
+                        )}
+                        {fight.fighter2.weight && (
+                            <div style={{ fontSize: '14px', color: '#666' }}>
+                                Вес: {fight.fighter2.weight}
+                            </div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#2196F3' }}>
+                            {fight.score.fighter2}
                         </div>
-                    )}
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#2196F3' }}>
-                        {fight.score.fighter2}
                     </div>
                 </div>
-            </div>
+            ) : (
+                // Интерактивные карточки для ввода счета
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
+                    {/* Боец 1 */}
+                    <div
+                        onClick={() => setScore1((parseInt(score1) || 0) + 1)}
+                        style={{
+                            padding: '20px',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+                            border: '3px solid #f44336',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            transition: 'all 0.2s',
+                            textAlign: 'center'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ffebee'
+                            e.currentTarget.style.transform = 'scale(1.05)'
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#fff'
+                            e.currentTarget.style.transform = 'scale(1)'
+                        }}
+                    >
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>
+                            🔴 {fight.fighter1.name}
+                        </div>
+                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#f44336', marginBottom: '10px' }}>
+                            {score1}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setScore1(Math.max(0, (parseInt(score1) || 0) - 1))
+                                }}
+                                style={{
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ➖
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setScore1((parseInt(score1) || 0) + 1)
+                                }}
+                                style={{
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* VS */}
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
+                        VS
+                    </div>
+
+                    {/* Боец 2 */}
+                    <div
+                        onClick={() => setScore2((parseInt(score2) || 0) + 1)}
+                        style={{
+                            padding: '20px',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+                            border: '3px solid #2196F3',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            transition: 'all 0.2s',
+                            textAlign: 'center'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e3f2fd'
+                            e.currentTarget.style.transform = 'scale(1.05)'
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#fff'
+                            e.currentTarget.style.transform = 'scale(1)'
+                        }}
+                    >
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>
+                            🔵 {fight.fighter2.name}
+                        </div>
+                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#2196F3', marginBottom: '10px' }}>
+                            {score2}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setScore2(Math.max(0, (parseInt(score2) || 0) - 1))
+                                }}
+                                style={{
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    backgroundColor: '#2196F3',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ➖
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setScore2((parseInt(score2) || 0) + 1)
+                                }}
+                                style={{
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    backgroundColor: '#2196F3',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Управление */}
             {canEdit && (
@@ -293,167 +435,38 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                 </div>
             )}
 
-            {/* Форма ввода счета */}
+            {/* Кнопка сохранения результата (показывается при заполнении счета) */}
             {showScoreForm && (
-                <div style={{
-                    marginTop: '15px',
-                    padding: '15px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '8px'
-                }}>
-                    <h4 style={{ marginTop: 0 }}>Введите результат боя:</h4>
-
-                    {/* Способ 1: Поля ввода */}
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
-                        <input
-                            type="number"
-                            placeholder="Счет 1"
-                            value={score1}
-                            onChange={e => setScore1(e.target.value)}
-                            style={{ padding: '10px', fontSize: '16px', width: '100px' }}
-                        />
-                        <span>:</span>
-                        <input
-                            type="number"
-                            placeholder="Счет 2"
-                            value={score2}
-                            onChange={e => setScore2(e.target.value)}
-                            style={{ padding: '10px', fontSize: '16px', width: '100px' }}
-                        />
-                        <button
-                            onClick={handleSaveResult}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#4caf50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Сохранить
-                        </button>
-                        <button
-                            onClick={() => setShowScoreForm(false)}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#999',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Отмена
-                        </button>
-                    </div>
-
-                    {/* Способ 2: Нажатие на бойцов */}
-                    <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
-                        <div style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>💡 Или нажимайте на бойцов чтобы увеличивать счет:</div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
-                            {/* Боец 1 */}
-                            <div
-                                onClick={() => setScore1((parseInt(score1) || 0) + 1)}
-                                style={{
-                                    padding: '15px',
-                                    backgroundColor: '#fff',
-                                    borderRadius: '8px',
-                                    border: '2px solid #f44336',
-                                    cursor: 'pointer',
-                                    userSelect: 'none',
-                                    transition: 'all 0.2s',
-                                    textAlign: 'center'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#ffebee'
-                                    e.currentTarget.style.transform = 'scale(1.02)'
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#fff'
-                                    e.currentTarget.style.transform = 'scale(1)'
-                                }}
-                            >
-                                <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '5px' }}>
-                                    🔴 {fight.fighter1.name}
-                                </div>
-                                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f44336' }}>
-                                    {score1}
-                                </div>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setScore1(Math.max(0, (parseInt(score1) || 0) - 1))
-                                    }}
-                                    style={{
-                                        marginTop: '8px',
-                                        padding: '5px 10px',
-                                        fontSize: '12px',
-                                        backgroundColor: '#f44336',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    ➖
-                                </button>
-                            </div>
-
-                            {/* VS */}
-                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#999' }}>
-                                VS
-                            </div>
-
-                            {/* Боец 2 */}
-                            <div
-                                onClick={() => setScore2((parseInt(score2) || 0) + 1)}
-                                style={{
-                                    padding: '15px',
-                                    backgroundColor: '#fff',
-                                    borderRadius: '8px',
-                                    border: '2px solid #2196F3',
-                                    cursor: 'pointer',
-                                    userSelect: 'none',
-                                    transition: 'all 0.2s',
-                                    textAlign: 'center'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#e3f2fd'
-                                    e.currentTarget.style.transform = 'scale(1.02)'
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#fff'
-                                    e.currentTarget.style.transform = 'scale(1)'
-                                }}
-                            >
-                                <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '5px' }}>
-                                    🔵 {fight.fighter2.name}
-                                </div>
-                                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2196F3' }}>
-                                    {score2}
-                                </div>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setScore2(Math.max(0, (parseInt(score2) || 0) - 1))
-                                    }}
-                                    style={{
-                                        marginTop: '8px',
-                                        padding: '5px 10px',
-                                        fontSize: '12px',
-                                        backgroundColor: '#2196F3',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    ➖
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button
+                        onClick={handleSaveResult}
+                        style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        ✅ Завершить и сохранить
+                    </button>
+                    <button
+                        onClick={() => setShowScoreForm(false)}
+                        style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#999',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '16px'
+                        }}
+                    >
+                        ← Отмена
+                    </button>
                 </div>
             )}
 
