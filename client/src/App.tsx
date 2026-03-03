@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, type FC } from "react";
+import { useContext, useEffect, type FC } from "react";
 import "./App.css";
 import LoginForm from "./components/LoginForm";
 import SuperAdminPanel from "./components/SuperAdminPanel";
@@ -9,12 +9,11 @@ import { observer } from "mobx-react-lite";
 
 const App: FC = () => {
     const { store } = useContext(Context)
-    const [isAdminMode, setIsAdminMode] = useState(false)
+    const isAdminPath = window.location.pathname === '/admin'
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
             store.checkAuth()
-            setIsAdminMode(true)
         }
     }, [])
 
@@ -32,38 +31,13 @@ const App: FC = () => {
         )
     }
 
-    // Публичный режим (для зрителей)
-    if (!isAdminMode) {
-        return (
-            <>
-                <div style={{
-                    position: 'fixed',
-                    top: '20px',
-                    right: '20px',
-                    zIndex: 100
-                }}>
-                    <button
-                        onClick={() => setIsAdminMode(true)}
-                        style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#1976d2',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                    >
-                        🔐 Вход для админов
-                    </button>
-                </div>
-                <PublicView />
-            </>
-        )
+    // Публичный режим (для зрителей) - если не на пути /admin и не авторизован
+    if (!isAdminPath && !store.isAuth) {
+        return <PublicView />
     }
 
-    // Админский режим
-    if (!store.isAuth) {
+    // Страница входа для админов
+    if (isAdminPath && !store.isAuth) {
         return (
             <>
                 <div style={{
@@ -73,7 +47,7 @@ const App: FC = () => {
                     zIndex: 100
                 }}>
                     <button
-                        onClick={() => setIsAdminMode(false)}
+                        onClick={() => window.location.href = '/'}
                         style={{
                             padding: '10px 20px',
                             backgroundColor: '#666',
@@ -84,7 +58,7 @@ const App: FC = () => {
                             fontSize: '16px'
                         }}
                     >
-                        ← Вернуться к публичному виду
+                        ← На главную
                     </button>
                 </div>
                 <LoginForm />

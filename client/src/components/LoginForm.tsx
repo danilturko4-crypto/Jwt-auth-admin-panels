@@ -12,6 +12,7 @@ const LoginForm: FC = () => {
         setError('')
         try {
             await store.login(email, password)
+            window.location.href = '/'
         } catch (e: any) {
             setError(e?.response?.data?.message || 'Ошибка входа')
         }
