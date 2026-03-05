@@ -104,7 +104,7 @@ const PublicView: FC = () => {
     }
 
     const getFightsForTatami = useCallback((tatamiId: string): IFight[] => {
-        return activeFights.filter(f => String(f.tatami._id) === String(tatamiId))
+        return activeFights.filter(f => f.tatami && String(f.tatami._id) === String(tatamiId))
     }, [activeFights])
 
 const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
