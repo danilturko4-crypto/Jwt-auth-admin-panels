@@ -26,10 +26,10 @@ const FightList: FC<Props> = ({
     const groups = useMemo(() => {
         if (!groupByTatami) return null
         return fights.reduce<Record<string, { label: string; fights: IFight[] }>>((acc, fight) => {
-            const key = String(fight.tatami._id)
+            const key = fight.tatami ? String(fight.tatami._id) : 'unknown'
             if (!acc[key]) {
                 acc[key] = {
-                    label: `Татами №${fight.tatami.number} — ${fight.tatami.name}`,
+                    label: fight.tatami ? `Татами №${fight.tatami.number} — ${fight.tatami.name}` : 'Татами удалено',
                     fights: []
                 }
             }

@@ -173,7 +173,7 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             {/* Заголовок */}
             <div style={s.cardHeader}>
                 <div>
-                    <div style={s.tatamiLabel}>🥋 Татами №{fight.tatami.number} — {fight.tatami.name}</div>
+                    <div style={s.tatamiLabel}>🥋 {fight.tatami ? `Татами №${fight.tatami.number} — ${fight.tatami.name}` : 'Татами удалено'}</div>
                     <div style={{ ...s.statusText, color: status.color }}>{status.text}</div>
                 </div>
                 <div style={s.dateText}>{new Date(fight.createdAt).toLocaleString('ru-RU')}</div>
