@@ -2,8 +2,7 @@ import axios from "axios";
 import type { ITatami } from "../models/ITatami";
 import type { IFight } from "../models/IFight";
 import type { IFighter } from "../models/IFighter";
-
-const API_URL = 'http://localhost:5000/api'
+import { API_URL } from "../http";
 
 export interface IFightHistory {
     _id: string;
