@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { AuthResponce } from "../models/response/AuthResponce";
 
-export const API_URL = 'http://localhost:5000/api'
+export const API_URL = 'https://jwt-auth-admin-panels.onrender.com/api'
 
 const $api = axios.create({
     withCredentials: true,
