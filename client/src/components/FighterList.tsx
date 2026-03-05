@@ -1,6 +1,7 @@
 import React, { useState, type FC } from "react";
 import type { IFighter } from "../models/IFighter";
 import FighterService from "../services/FighterService";
+import { User, MapPin, Scale, Pencil, Trash2, AlertCircle, ClipboardList } from 'lucide-react';
 
 interface Props {
     fighters: IFighter[];
@@ -104,7 +105,7 @@ const FighterRow: FC<{
                             style={s.input}
                         />
                     </div>
-                    {saveError && <div style={s.errorText}>❌ {saveError}</div>}
+                    {saveError && <div style={{ ...s.errorText, display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={12} />{saveError}</div>}
                     <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                         <button
                             onClick={handleSave}
@@ -129,13 +130,13 @@ const FighterRow: FC<{
                         {fighter.photo ? (
                             <img src={fighter.photo} alt={fighter.name} style={s.avatar} />
                         ) : (
-                            <div style={s.avatarPlaceholder}>👤</div>
+                            <div style={s.avatarPlaceholder}><User size={20} color="#8890aa" /></div>
                         )}
                         <div>
                             <div style={s.fighterName}>{fighter.name}</div>
                             <div style={s.fighterMeta}>
-                                {fighter.team && <span>📍 {fighter.team}</span>}
-                                {fighter.weight && <span>⚖️ {fighter.weight}</span>}
+                                {fighter.team && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><MapPin size={10} />{fighter.team}</span>}
+                                {fighter.weight && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><Scale size={10} />{fighter.weight}</span>}
                                 <span style={{ color: '#c7d0e0' }}>
                                     {new Date(fighter.createdAt).toLocaleDateString('ru-RU')}
                                 </span>
@@ -145,11 +146,11 @@ const FighterRow: FC<{
 
                     {canEdit && (
                         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                            <button onClick={handleEdit} style={{ ...s.btn, background: '#1d6fe5' }}>
-                                ✏️ Изменить
+                            <button onClick={handleEdit} style={{ ...s.btn, background: '#1d6fe5', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                <Pencil size={12} /> Изменить
                             </button>
-                            <button onClick={() => setConfirmDelete(true)} style={{ ...s.btn, background: '#e63946' }}>
-                                🗑️ Удалить
+                            <button onClick={() => setConfirmDelete(true)} style={{ ...s.btn, background: '#e63946', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                <Trash2 size={12} /> Удалить
                             </button>
                         </div>
                     )}
@@ -179,7 +180,7 @@ const FighterRow: FC<{
                 </div>
             )}
 
-            {deleteError && <div style={{ ...s.errorText, marginTop: 8 }}>❌ {deleteError}</div>}
+            {deleteError && <div style={{ ...s.errorText, marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={12} />{deleteError}</div>}
         </div>
     )
 }
@@ -189,7 +190,7 @@ const FighterList: FC<Props> = ({ fighters, canEdit, onFighterUpdated }) => {
     if (fighters.length === 0) {
         return (
             <div style={s.empty}>
-                <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.35 }}>👤</div>
+                <div style={{ marginBottom: 8, opacity: 0.35 }}><User size={28} /></div>
                 <div style={s.emptyText}>Бойцы ещё не созданы</div>
             </div>
         )
@@ -197,7 +198,7 @@ const FighterList: FC<Props> = ({ fighters, canEdit, onFighterUpdated }) => {
 
     return (
         <div>
-            <h3 style={s.title}>📋 Список бойцов ({fighters.length})</h3>
+            <h3 style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 6 }}><ClipboardList size={15} /> Список бойцов ({fighters.length})</h3>
             <div style={{ display: 'grid', gap: 8 }}>
                 {fighters.map(fighter => (
                     <FighterRow

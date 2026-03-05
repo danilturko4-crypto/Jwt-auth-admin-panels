@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, type FC } from "react"
 import type { IFighter } from "../models/IFighter";
 import FighterService from "../services/FighterService";
 import '../styles/admin.css';
+import { Swords, AlertTriangle, AlertCircle, CheckCircle, User, MapPin, Scale } from 'lucide-react';
 
 interface Props {
     tatamiId: string;
@@ -14,14 +15,14 @@ const FighterPreview: FC<{ fighter: IFighter; corner: 'red' | 'blue' }> = ({ fig
         {fighter.photo ? (
             <img src={fighter.photo} alt={fighter.name} style={s.avatar} />
         ) : (
-            <div style={{ ...s.avatarPlaceholder, background: corner === 'red' ? '#ffebee' : '#eff6ff' }}>
-                👤
+            <div style={{ ...s.avatarPlaceholder, background: corner === 'red' ? '#ffebee' : '#eff6ff', color: corner === 'red' ? '#e63946' : '#1d6fe5' }}>
+                <User size={20} />
             </div>
         )}
         <div style={s.previewInfo}>
             <div style={s.previewName}>{fighter.name}</div>
-            {fighter.team && <div style={s.previewMeta}>📍 {fighter.team}</div>}
-            {fighter.weight && <div style={s.previewMeta}>⚖️ {fighter.weight}</div>}
+            {fighter.team && <div style={{ ...s.previewMeta, display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} />{fighter.team}</div>}
+            {fighter.weight && <div style={{ ...s.previewMeta, display: 'flex', alignItems: 'center', gap: 3 }}><Scale size={10} />{fighter.weight}</div>}
         </div>
     </div>
 )
@@ -152,7 +153,7 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
     if (fighters.length < 2) {
         return (
             <div style={s.emptyWrap}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+                <AlertTriangle size={28} color="#f4802a" style={{ marginBottom: 8 }} />
                 <div style={s.emptyText}>
                     {fighters.length === 0
                         ? 'Сначала создайте бойцов в разделе «Бойцы»'
@@ -165,12 +166,12 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
 
     return (
         <div style={s.wrap}>
-            <h3 style={s.title}>⚔️ Создать новый бой</h3>
+            <h3 style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 6 }}><Swords size={16} /> Создать новый бой</h3>
 
             <div className="fight-form-grid">
                 {/* Красный угол */}
                 <div style={{ ...s.corner, borderColor: '#ffc9cc', background: '#fff8f8' }}>
-                    <div style={{ ...s.cornerLabel, color: '#e63946' }}>🔴 Красный угол</div>
+                    <div style={{ ...s.cornerLabel, color: '#e63946', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#e63946', display: 'inline-block', flexShrink: 0 }} /> Красный угол</div>
                     <FighterSelect
                         value={fighter1Id}
                         onChange={setFighter1Id}
@@ -190,7 +191,7 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
 
                 {/* Синий угол */}
                 <div style={{ ...s.corner, borderColor: '#c7d9fd', background: '#f8fbff' }}>
-                    <div style={{ ...s.cornerLabel, color: '#1d6fe5' }}>🔵 Синий угол</div>
+                    <div style={{ ...s.cornerLabel, color: '#1d6fe5', display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#1d6fe5', display: 'inline-block', flexShrink: 0 }} /> Синий угол</div>
                     <FighterSelect
                         value={fighter2Id}
                         onChange={setFighter2Id}
@@ -202,8 +203,8 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
                 </div>
             </div>
 
-            {error && <div style={s.errorBox}>❌ {error}</div>}
-            {success && <div style={s.successBox}>✅ {success}</div>}
+            {error && <div style={{ ...s.errorBox, display: 'flex', alignItems: 'center', gap: 6 }}><AlertCircle size={13} />{error}</div>}
+            {success && <div style={{ ...s.successBox, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={13} />{success}</div>}
 
             <button
                 onClick={handleSubmit}

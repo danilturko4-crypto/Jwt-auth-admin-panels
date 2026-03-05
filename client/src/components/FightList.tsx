@@ -2,6 +2,7 @@ import React, { useMemo, type FC } from "react";
 import type { IFight } from "../models/IFight";
 import type { IFighter } from "../models/IFighter";
 import FightCard from "./FightCard";
+import { Swords, Shield } from 'lucide-react';
 
 interface Props {
     fights: IFight[];
@@ -43,7 +44,7 @@ const FightList: FC<Props> = ({
     if (fights.length === 0) {
         return (
             <div style={s.empty}>
-                <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.35 }}>⚔️</div>
+                <div style={{ marginBottom: 8, opacity: 0.35 }}><Swords size={28} /></div>
                 <div style={s.emptyText}>Бои ещё не созданы</div>
             </div>
         )
@@ -51,15 +52,15 @@ const FightList: FC<Props> = ({
 
     return (
         <div>
-            <h3 style={s.title}>
-                ⚔️ {groupByTatami ? 'Все бои' : 'Список боёв'} ({fights.length})
+            <h3 style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Swords size={15} /> {groupByTatami ? 'Все бои' : 'Список боёв'} ({fights.length})
             </h3>
 
             {groups ? (
                 Object.entries(groups).map(([tatamiId, group]) => (
                     <div key={tatamiId} style={s.group}>
-                        <div style={s.groupHeader}>
-                            🥋 {group.label}
+                        <div style={{ ...s.groupHeader, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Shield size={13} />{group.label}
                             <span style={s.groupCount}>
                                 {group.fights.length} {group.fights.length === 1 ? 'бой' : 'боёв'}
                             </span>

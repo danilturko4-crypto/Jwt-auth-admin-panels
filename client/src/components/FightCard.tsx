@@ -1,6 +1,7 @@
 import React, { useState, type FC } from "react";
 import type { IFight } from "../models/IFight";
 import type { IFighter } from "../models/IFighter";
+import { User, MapPin, Scale, Crown, Trophy, Play, Pencil, X, Check, Clock, CheckCircle, XCircle, AlertCircle, Shield } from 'lucide-react';
 
 interface Props {
     fight: IFight;
@@ -53,9 +54,9 @@ const FighterScoreCard: FC<{
                     background: corner === 'red' ? '#ffebee' : '#eff6ff',
                     border: `2px solid ${borderColor}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 24, margin: '0 auto 8px'
+                    margin: '0 auto 8px', color
                 }}>
-                    {corner === 'red' ? '🔴' : '🔵'}
+                    <User size={24} />
                 </div>
             )}
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, color: '#14172b', fontFamily: "'Manrope', sans-serif" }}>
@@ -111,17 +112,17 @@ const FighterStaticCard: FC<{
                         background: corner === 'red' ? '#ffebee' : '#eff6ff',
                         border: `2px solid ${borderColor}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, flexShrink: 0
+                        flexShrink: 0, color
                     }}>
-                        {corner === 'red' ? '🔴' : '🔵'}
+                        <User size={20} />
                     </div>
                 )}
                 <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#14172b', fontFamily: "'Manrope', sans-serif" }}>
-                        {isWinner && '👑 '}{fighter.name}
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#14172b', fontFamily: "'Manrope', sans-serif", display: 'flex', alignItems: 'center', gap: 5 }}>
+                        {isWinner && <Crown size={14} color="#f4802a" />}{fighter.name}
                     </div>
-                    {fighter.team && <div style={s.meta}>📍 {fighter.team}</div>}
-                    {fighter.weight && <div style={s.meta}>⚖️ {fighter.weight}</div>}
+                    {fighter.team && <div style={{ ...s.meta, display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} />{fighter.team}</div>}
+                    {fighter.weight && <div style={{ ...s.meta, display: 'flex', alignItems: 'center', gap: 3 }}><Scale size={10} />{fighter.weight}</div>}
                 </div>
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color, fontFamily: "'Unbounded', sans-serif" }}>
@@ -141,13 +142,13 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
     const [editError, setEditError] = useState('')
     const [confirmAction, setConfirmAction] = useState<'cancel' | 'finish' | null>(null)
 
-    const statusConfig = {
-        scheduled:   { color: '#f4802a', text: '⏰ Ожидает' },
-        in_progress: { color: '#1d6fe5', text: '▶️ Идёт' },
-        completed:   { color: '#2cb67d', text: '✅ Завершён' },
-        cancelled:   { color: '#e63946', text: '❌ Отменён' },
+    const statusConfig: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
+        scheduled:   { color: '#f4802a', icon: <Clock size={11} />,        text: 'Ожидает' },
+        in_progress: { color: '#1d6fe5', icon: <Play size={11} />,         text: 'В процессе' },
+        completed:   { color: '#2cb67d', icon: <CheckCircle size={11} />,  text: 'Завершён' },
+        cancelled:   { color: '#e63946', icon: <XCircle size={11} />,      text: 'Отменён' },
     }
-    const status = statusConfig[fight.status as keyof typeof statusConfig] ?? { color: '#8890aa', text: '' }
+    const status = statusConfig[fight.status] ?? { color: '#8890aa', icon: null, text: '' }
 
     const handleSaveResult = () => {
         const winner = score1 > score2 ? 'fighter1' : score2 > score1 ? 'fighter2' : 'draw'
@@ -173,8 +174,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             {/* Заголовок */}
             <div style={s.cardHeader}>
                 <div>
-                    <div style={s.tatamiLabel}>🥋 {fight.tatami ? `Татами №${fight.tatami.number} — ${fight.tatami.name}` : 'Татами удалено'}</div>
-                    <div style={{ ...s.statusText, color: status.color }}>{status.text}</div>
+                    <div style={{ ...s.tatamiLabel, display: 'flex', alignItems: 'center', gap: 5 }}><Shield size={13} />{fight.tatami ? `Татами №${fight.tatami.number} — ${fight.tatami.name}` : 'Татами удалено'}</div>
+                    <div style={{ ...s.statusText, color: status.color, display: 'flex', alignItems: 'center', gap: 4 }}>{status.icon}{status.text}</div>
                 </div>
                 <div style={s.dateText}>{new Date(fight.createdAt).toLocaleString('ru-RU')}</div>
             </div>
@@ -228,8 +229,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
 
             {/* Результат */}
             {fight.status === 'completed' && fight.winner && (
-                <div style={s.winnerBox}>
-                    🏆 Победитель: {
+                <div style={{ ...s.winnerBox, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Trophy size={13} /> Победитель: {
                         fight.winner === 'fighter1' ? fight.fighter1.name :
                         fight.winner === 'fighter2' ? fight.fighter2.name : 'Ничья'
                     }
@@ -241,17 +242,17 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                 <div style={s.controls}>
                     {fight.status === 'scheduled' && (
                         <>
-                            <button style={{ ...s.btn, background: '#1d6fe5' }} onClick={() => onStatusChange(fight._id, 'in_progress')}>
-                                ▶️ Начать бой
+                            <button style={{ ...s.btn, background: '#1d6fe5', display: 'inline-flex', alignItems: 'center', gap: 5 }} onClick={() => onStatusChange(fight._id, 'in_progress')}>
+                                <Play size={13} /> Начать бой
                             </button>
                             {onEditFight && fighters.length > 0 && (
-                                <button style={{ ...s.btn, background: '#f4802a' }} onClick={() => {
+                                <button style={{ ...s.btn, background: '#f4802a', display: 'inline-flex', alignItems: 'center', gap: 5 }} onClick={() => {
                                     setEditFighter1(fight.fighter1._id)
                                     setEditFighter2(fight.fighter2._id)
                                     setShowEditForm(v => !v)
                                     setEditError('')
                                 }}>
-                                    ✏️ Изменить бойцов
+                                    <Pencil size={13} /> Изменить бойцов
                                 </button>
                             )}
                         </>
@@ -259,11 +260,11 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
 
                     {fight.status === 'in_progress' && (
                         <>
-                            <button style={{ ...s.btn, background: '#e63946' }} onClick={() => setConfirmAction('cancel')}>
-                                ❌ Отменить бой
+                            <button style={{ ...s.btn, background: '#e63946', display: 'inline-flex', alignItems: 'center', gap: 5 }} onClick={() => setConfirmAction('cancel')}>
+                                <X size={13} /> Отменить бой
                             </button>
-                            <button style={{ ...s.btn, background: '#2cb67d' }} onClick={() => setConfirmAction('finish')}>
-                                ✅ Завершить
+                            <button style={{ ...s.btn, background: '#2cb67d', display: 'inline-flex', alignItems: 'center', gap: 5 }} onClick={() => setConfirmAction('finish')}>
+                                <Check size={13} /> Завершить
                             </button>
                         </>
                     )}
@@ -275,8 +276,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                 <div style={confirmAction === 'cancel' ? s.confirmDanger : s.confirmSuccess}>
                     <div style={s.confirmText}>
                         {confirmAction === 'cancel'
-                            ? '❌ Отменить бой? Это действие необратимо.'
-                            : `✅ Завершить бой со счётом ${score1} : ${score2}?`
+                            ? 'Отменить бой? Это действие необратимо.'
+                            : `Завершить бой со счётом ${score1} : ${score2}?`
                         }
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
@@ -300,10 +301,10 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             {/* Форма изменения бойцов */}
             {showEditForm && (
                 <div style={s.editForm}>
-                    <div style={s.editTitle}>✏️ Изменить бойцов</div>
+                    <div style={{ ...s.editTitle, display: 'flex', alignItems: 'center', gap: 5 }}><Pencil size={13} /> Изменить бойцов</div>
                     <div style={s.editRow}>
                         <div style={{ flex: 1 }}>
-                            <div style={s.editLabel}>🔴 Боец 1</div>
+                            <div style={{ ...s.editLabel, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#e63946', display: 'inline-block' }} /> Боец 1</div>
                             <select
                                 value={editFighter1}
                                 onChange={e => { setEditFighter1(e.target.value); setEditError('') }}
@@ -318,7 +319,7 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                         </div>
                         <div style={{ ...s.vsText, paddingTop: 20, flexShrink: 0 }}>VS</div>
                         <div style={{ flex: 1 }}>
-                            <div style={s.editLabel}>🔵 Боец 2</div>
+                            <div style={{ ...s.editLabel, display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1d6fe5', display: 'inline-block' }} /> Боец 2</div>
                             <select
                                 value={editFighter2}
                                 onChange={e => { setEditFighter2(e.target.value); setEditError('') }}
@@ -332,7 +333,7 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                             </select>
                         </div>
                     </div>
-                    {editError && <div style={s.editError}>❌ {editError}</div>}
+                    {editError && <div style={{ ...s.editError, display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={12} />{editError}</div>}
                     <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                         <button style={{ ...s.btn, background: '#f4802a' }} onClick={handleSaveEdit}>Сохранить</button>
                         <button style={{ ...s.btn, background: '#8890aa' }} onClick={() => { setShowEditForm(false); setEditError('') }}>Отмена</button>

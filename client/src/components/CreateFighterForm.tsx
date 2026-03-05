@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, type FC } from "react";
 import FighterService from "../services/FighterService";
+import { User, Camera, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface Props {
     onFighterCreated: () => void;
@@ -86,7 +87,7 @@ const CreateFighterForm: FC<Props> = ({ onFighterCreated }) => {
 
     return (
         <div style={s.wrap}>
-            <h3 style={s.title}>👤 Создать нового бойца</h3>
+            <h3 style={{ ...s.title, display: 'flex', alignItems: 'center', gap: 6 }}><User size={16} /> Создать нового бойца</h3>
 
             <div style={s.row}>
                 {/* Левая колонка: поля */}
@@ -135,7 +136,7 @@ const CreateFighterForm: FC<Props> = ({ onFighterCreated }) => {
                             onDragLeave={() => setDragOver(false)}
                             onDrop={handleDrop}
                         >
-                            <div style={{ fontSize: 28, marginBottom: 6 }}>📷</div>
+                            <Camera size={28} color="#8890aa" style={{ marginBottom: 6 }} />
                             <div style={s.dropText}>Нажмите или перетащите фото</div>
                         </div>
                     )}
@@ -149,8 +150,8 @@ const CreateFighterForm: FC<Props> = ({ onFighterCreated }) => {
                 </div>
             </div>
 
-            {error && <div style={s.errorBox}>❌ {error}</div>}
-            {success && <div style={s.successBox}>✅ {success}</div>}
+            {error && <div style={{ ...s.errorBox, display: 'flex', alignItems: 'center', gap: 6 }}><AlertCircle size={13} />{error}</div>}
+            {success && <div style={{ ...s.successBox, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={13} />{success}</div>}
 
             <button
                 onClick={handleSubmit}

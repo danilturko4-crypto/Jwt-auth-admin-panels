@@ -6,6 +6,7 @@ import FightList from "./FightList";
 import CreateFighterForm from "./CreateFighterForm";
 import FighterList from "./FighterList";
 import '../styles/admin.css';
+import { AlertTriangle, Building2, Shield, User, Swords } from 'lucide-react';
 
 const AdminPanel: FC = () => {
     const { store } = useContext(Context)
@@ -60,7 +61,7 @@ const AdminPanel: FC = () => {
     if (error) {
         return (
             <div style={s.centered}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+                <AlertTriangle size={32} color="#e63946" style={{ marginBottom: 12 }} />
                 <p style={{ color: '#e63946', fontWeight: 600, marginBottom: 16 }}>{error}</p>
                 <button style={s.btnSecondary} onClick={loadData}>Попробовать снова</button>
             </div>
@@ -70,7 +71,7 @@ const AdminPanel: FC = () => {
     if (!store.myTatami) {
         return (
             <div style={s.centered}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>🏟</div>
+                <Building2 size={32} color="#8890aa" style={{ marginBottom: 12 }} />
                 <h2 style={{ margin: '0 0 8px', fontSize: 20 }}>Татами не привязано</h2>
                 <p style={{ color: '#8890aa', marginBottom: 8 }}>Обратитесь к главному администратору</p>
                 <p style={{ color: '#aaa', fontSize: 13, marginBottom: 20 }}>
@@ -88,8 +89,8 @@ const AdminPanel: FC = () => {
                 <div>
                     <h1 style={s.title}>Панель администратора</h1>
                     <div style={s.tatamiPill}>
-                        <span style={{ fontWeight: 700 }}>
-                            🥋 №{store.myTatami.number} — {store.myTatami.name}
+                        <span style={{ fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            <Shield size={14} /> №{store.myTatami.number} — {store.myTatami.name}
                         </span>
                         <span style={store.myTatami.isActive ? s.statusActive : s.statusInactive}>
                             {store.myTatami.isActive ? '● Активно' : '● Неактивно'}
@@ -106,15 +107,15 @@ const AdminPanel: FC = () => {
             {/* TABS */}
             <div className="admin-tabs" style={s.tabs}>
                 {([
-                    { key: 'fighters', label: '👤 Бойцы' },
-                    { key: 'fights',   label: '⚔️ Бои' },
-                ] as const).map(({ key, label }) => (
+                    { key: 'fighters' as const, label: 'Бойцы', icon: <User size={14} /> },
+                    { key: 'fights'   as const, label: 'Бои',   icon: <Swords size={14} /> },
+                ]).map(({ key, label, icon }) => (
                     <button
                         key={key}
                         onClick={() => setActiveTab(key)}
                         style={activeTab === key ? s.tabActive : s.tab}
                     >
-                        {label}
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{icon}{label}</span>
                     </button>
                 ))}
             </div>

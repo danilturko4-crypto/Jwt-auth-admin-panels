@@ -10,6 +10,7 @@ import FighterList from "./FighterList";
 import UserService from "../services/UserService";
 import type { IUser } from "../models/IUsers";
 import '../styles/admin.css';
+import { AlertTriangle, Users, Shield, User, Swords } from 'lucide-react';
 
 const SuperAdminPanel: FC = () => {
     const { store } = useContext(Context)
@@ -82,7 +83,7 @@ const SuperAdminPanel: FC = () => {
     if (error) {
         return (
             <div style={s.centered}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+                <AlertTriangle size={32} color="#e63946" style={{ marginBottom: 12 }} />
                 <p style={{ color: '#e63946', fontWeight: 600, marginBottom: 16 }}>{error}</p>
                 <button style={s.btnPrimary} onClick={() => window.location.reload()}>
                     Попробовать снова
@@ -109,11 +110,11 @@ const SuperAdminPanel: FC = () => {
             {/* TABS */}
             <div className="admin-tabs" style={s.tabs}>
                 {([
-                    { key: 'admins',   label: '👥 Админы',   count: admins.length },
-                    { key: 'tatamis',  label: '🥋 Татами',   count: store.tatamis.length },
-                    { key: 'fighters', label: '👤 Бойцы',    count: store.fighters.length },
-                    { key: 'fights',   label: '⚔️ Все бои',  count: store.fights.length },
-                ] as const).map(({ key, label, count }) => {
+                    { key: 'admins'   as const, label: 'Админы',   icon: <Users size={14} />,  count: admins.length },
+                    { key: 'tatamis'  as const, label: 'Татами',   icon: <Shield size={14} />, count: store.tatamis.length },
+                    { key: 'fighters' as const, label: 'Бойцы',    icon: <User size={14} />,   count: store.fighters.length },
+                    { key: 'fights'   as const, label: 'Все бои',  icon: <Swords size={14} />, count: store.fights.length },
+                ]).map(({ key, label, icon, count }) => {
                     const isActive = activeTab === key
                     return (
                         <button
@@ -121,7 +122,7 @@ const SuperAdminPanel: FC = () => {
                             onClick={() => setActiveTab(key)}
                             style={isActive ? s.tabActive : s.tab}
                         >
-                            {label}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{icon}{label}</span>
                             <span style={{
                                 marginLeft: 6,
                                 background: isActive ? 'rgba(255,255,255,0.25)' : '#e4e8f4',
