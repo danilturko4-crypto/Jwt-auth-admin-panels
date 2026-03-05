@@ -5,6 +5,7 @@ import CreateFightForm from "./CreateFightForm";
 import FightList from "./FightList";
 import CreateFighterForm from "./CreateFighterForm";
 import FighterList from "./FighterList";
+import '../styles/admin.css';
 
 const AdminPanel: FC = () => {
     const { store } = useContext(Context)
@@ -83,7 +84,7 @@ const AdminPanel: FC = () => {
     return (
         <div style={s.page}>
             {/* HEADER */}
-            <div style={s.header}>
+            <div className="admin-header" style={s.header}>
                 <div>
                     <h1 style={s.title}>Панель администратора</h1>
                     <div style={s.tatamiPill}>
@@ -103,7 +104,7 @@ const AdminPanel: FC = () => {
             </div>
 
             {/* TABS */}
-            <div style={s.tabs}>
+            <div className="admin-tabs" style={s.tabs}>
                 {([
                     { key: 'fighters', label: '👤 Бойцы' },
                     { key: 'fights',   label: '⚔️ Бои' },

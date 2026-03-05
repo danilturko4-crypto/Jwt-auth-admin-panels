@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, type FC } from "react";
 import type { IFighter } from "../models/IFighter";
 import FighterService from "../services/FighterService";
+import '../styles/admin.css';
 
 interface Props {
     tatamiId: string;
@@ -166,7 +167,7 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
         <div style={s.wrap}>
             <h3 style={s.title}>⚔️ Создать новый бой</h3>
 
-            <div style={s.grid}>
+            <div className="fight-form-grid">
                 {/* Красный угол */}
                 <div style={{ ...s.corner, borderColor: '#ffc9cc', background: '#fff8f8' }}>
                     <div style={{ ...s.cornerLabel, color: '#e63946' }}>🔴 Красный угол</div>
@@ -181,7 +182,7 @@ const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
                 </div>
 
                 {/* VS разделитель */}
-                <div style={s.vs}>
+                <div className="fight-form-vs" style={s.vs}>
                     <div style={s.vsLine} />
                     <span style={s.vsText}>VS</span>
                     <div style={s.vsLine} />

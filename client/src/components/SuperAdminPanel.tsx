@@ -9,6 +9,7 @@ import CreateFighterForm from "./CreateFighterForm";
 import FighterList from "./FighterList";
 import UserService from "../services/UserService";
 import type { IUser } from "../models/IUsers";
+import '../styles/admin.css';
 
 const SuperAdminPanel: FC = () => {
     const { store } = useContext(Context)
@@ -94,7 +95,7 @@ const SuperAdminPanel: FC = () => {
         <div style={s.page}>
 
             {/* HEADER */}
-            <div style={s.header}>
+            <div className="admin-header" style={s.header}>
                 <div>
                     <h1 style={s.title}>Главный администратор</h1>
                     <span style={s.subtitle}>Полный доступ к системе</span>
@@ -106,7 +107,7 @@ const SuperAdminPanel: FC = () => {
             </div>
 
             {/* TABS */}
-            <div style={s.tabs}>
+            <div className="admin-tabs" style={s.tabs}>
                 {([
                     { key: 'admins',   label: '👥 Админы',   count: admins.length },
                     { key: 'tatamis',  label: '🥋 Татами',   count: store.tatamis.length },
