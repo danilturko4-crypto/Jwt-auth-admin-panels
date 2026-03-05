@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type FC } from "react";
+import { useState, useEffect, type FC } from "react";
 import type { IFight } from "../models/IFight";
 
 interface Props {

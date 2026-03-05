@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import PublicService, { type IFighterStats } from "../services/PublicService";
 
 interface Props {

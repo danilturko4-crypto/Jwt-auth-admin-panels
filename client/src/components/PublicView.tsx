@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback, type FC } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback, type FC } from "react";
 import { observer } from "mobx-react-lite";
 import type { ITatami } from "../models/ITatami";
 import type { IFight } from "../models/IFight";

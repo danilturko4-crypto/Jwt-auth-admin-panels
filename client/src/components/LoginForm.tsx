@@ -1,4 +1,4 @@
-import React, { useContext, useState, type FC } from "react";
+import { useContext, useState, type FC } from "react";
 import { Context } from "../main";
 import { observer } from "mobx-react-lite";
 
