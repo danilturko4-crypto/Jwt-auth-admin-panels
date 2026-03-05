@@ -42,8 +42,8 @@ export default class PublicService {
         return axios.get<IFight[]>(`${API_URL}/public/fights/active`)
     }
 
-    static async getFightsByTatami(tatamiId: string) {
-        return axios.get<IFight[]>(`${API_URL}/public/fights/tatami/${tatamiId}`)
+    static async getFightsByTatami(tatamiId: string, signal?: AbortSignal) {
+        return axios.get<IFight[]>(`${API_URL}/public/fights/tatami/${tatamiId}`, { signal })
     }
 
     static async getAllFighters() {

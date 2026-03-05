@@ -1,5 +1,4 @@
-import React, { useState, useEffect, type FC } from "react";
-import { observer } from "mobx-react-lite";
+import React, { useState, useEffect, useRef, useCallback, type FC } from "react";
 import type { IFighter } from "../models/IFighter";
 import FighterService from "../services/FighterService";
 
@@ -8,205 +7,405 @@ interface Props {
     onCreateFight: (fighter1Id: string, fighter2Id: string) => Promise<void>;
 }
 
-const CreateFightForm: FC<Props> = ({ tatamiId, onCreateFight }) => {
+// ── Превью выбранного бойца ──────────────────────────
+const FighterPreview: FC<{ fighter: IFighter; corner: 'red' | 'blue' }> = ({ fighter, corner }) => (
+    <div style={{ ...s.preview, borderColor: corner === 'red' ? '#ffc9cc' : '#c7d9fd' }}>
+        {fighter.photo ? (
+            <img src={fighter.photo} alt={fighter.name} style={s.avatar} />
+        ) : (
+            <div style={{ ...s.avatarPlaceholder, background: corner === 'red' ? '#ffebee' : '#eff6ff' }}>
+                👤
+            </div>
+        )}
+        <div style={s.previewInfo}>
+            <div style={s.previewName}>{fighter.name}</div>
+            {fighter.team && <div style={s.previewMeta}>📍 {fighter.team}</div>}
+            {fighter.weight && <div style={s.previewMeta}>⚖️ {fighter.weight}</div>}
+        </div>
+    </div>
+)
+
+// ── Селект с поиском ─────────────────────────────────
+const FighterSelect: FC<{
+    value: string
+    onChange: (id: string) => void
+    fighters: IFighter[]
+    disabledId?: string
+    corner: 'red' | 'blue'
+    disabled?: boolean
+}> = ({ value, onChange, fighters, disabledId, corner, disabled }) => {
+    const [search, setSearch] = useState('')
+
+    const filtered = fighters
+        .filter(f => f._id !== disabledId)
+        .filter(f => f.name.toLowerCase().includes(search.toLowerCase()) ||
+                     f.team?.toLowerCase().includes(search.toLowerCase()) || false)
+        .sort((a, b) => a.name.localeCompare(b.name))
+
+    const selected = fighters.find(f => f._id === value)
+
+    return (
+        <div>
+            <input
+                type="text"
+                placeholder="Поиск по имени или команде..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                disabled={disabled}
+                style={s.searchInput}
+            />
+            <select
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                disabled={disabled}
+                style={{ ...s.select, borderColor: corner === 'red' ? '#ffc9cc' : '#c7d9fd' }}
+                size={Math.min(filtered.length + 1, 5)}
+            >
+                <option value="">— Выберите бойца —</option>
+                {filtered.map(fighter => (
+                    <option key={fighter._id} value={fighter._id}>
+                        {fighter.name}{fighter.team ? ` (${fighter.team})` : ''}{fighter.weight ? ` · ${fighter.weight}` : ''}
+                    </option>
+                ))}
+            </select>
+            {filtered.length === 0 && search && (
+                <div style={s.noResults}>Ничего не найдено</div>
+            )}
+            {selected && <FighterPreview fighter={selected} corner={corner} />}
+        </div>
+    )
+}
+
+// ── Основной компонент ───────────────────────────────
+const CreateFightForm: FC<Props> = ({ onCreateFight }) => {
     const [fighters, setFighters] = useState<IFighter[]>([])
     const [fighter1Id, setFighter1Id] = useState('')
     const [fighter2Id, setFighter2Id] = useState('')
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+
+    const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
-        loadFighters()
+        return () => {
+            if (successTimerRef.current) clearTimeout(successTimerRef.current)
+            if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+        }
     }, [])
 
-    const loadFighters = async () => {
+    const loadFighters = useCallback(async () => {
         try {
             const response = await FighterService.getAllFighters()
             setFighters(response.data)
-        } catch (error) {
-            console.error('Ошибка загрузки бойцов:', error)
+        } catch (e) {
+            console.error('Ошибка загрузки бойцов:', e)
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
+
+    useEffect(() => {
+        loadFighters()
+    }, [loadFighters])
 
     const handleSubmit = async () => {
+        if (submitting || !fighter1Id || !fighter2Id || fighter1Id === fighter2Id) return
         setError('')
         setSuccess('')
-
-        if (!fighter1Id || !fighter2Id) {
-            setError('Выберите обоих бойцов')
-            return
-        }
-
-        if (fighter1Id === fighter2Id) {
-            setError('Бойцы должны быть разными')
-            return
-        }
+        setSubmitting(true)
 
         try {
             await onCreateFight(fighter1Id, fighter2Id)
-            
+
             const f1 = fighters.find(f => f._id === fighter1Id)
             const f2 = fighters.find(f => f._id === fighter2Id)
             setSuccess(`Бой ${f1?.name} vs ${f2?.name} создан!`)
             setFighter1Id('')
             setFighter2Id('')
-            
-            setTimeout(() => setSuccess(''), 3000)
+
+            successTimerRef.current = setTimeout(() => setSuccess(''), 3000)
         } catch (e: any) {
-            setError(e?.response?.data?.message || 'Ошибка создания боя')
-            setTimeout(() => setError(''), 5000)
+            const msg = e?.response?.data?.message || 'Ошибка создания боя'
+            setError(msg)
+            errorTimerRef.current = setTimeout(() => setError(''), 5000)
+        } finally {
+            setSubmitting(false)
         }
     }
 
+    const canSubmit = fighter1Id && fighter2Id && fighter1Id !== fighter2Id && !submitting
+
     if (loading) {
-        return <div style={{ padding: '20px' }}>Загрузка бойцов...</div>
+        return (
+            <div style={s.loadingWrap}>
+                <div style={s.spinner} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <span style={{ color: '#8890aa', fontSize: 13, fontWeight: 600 }}>Загрузка бойцов...</span>
+            </div>
+        )
     }
 
-    if (fighters.length === 0) {
+    if (fighters.length < 2) {
         return (
-            <div style={{
-                padding: '20px',
-                backgroundColor: '#fff3cd',
-                borderRadius: '8px',
-                border: '1px solid #ffc107',
-                color: '#856404'
-            }}>
-                ⚠️ Сначала создайте бойцов в разделе "Бойцы"
+            <div style={s.emptyWrap}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+                <div style={s.emptyText}>
+                    {fighters.length === 0
+                        ? 'Сначала создайте бойцов в разделе «Бойцы»'
+                        : 'Нужно минимум 2 бойца для создания боя'
+                    }
+                </div>
             </div>
         )
     }
 
     return (
-        <div style={{
-            padding: '20px',
-            border: '2px solid #2196F3',
-            borderRadius: '8px',
-            marginTop: '20px',
-            backgroundColor: '#f5f5f5'
-        }}>
-            <h3>⚔️ Создать новый бой</h3>
+        <div style={s.wrap}>
+            <h3 style={s.title}>⚔️ Создать новый бой</h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                {/* Боец 1 */}
-                <div style={{ padding: '15px', backgroundColor: '#ffebee', borderRadius: '8px' }}>
-                    <h4 style={{ marginTop: 0 }}>🔴 Боец 1 (Красный угол)</h4>
-                    <select
+            <div style={s.grid}>
+                {/* Красный угол */}
+                <div style={{ ...s.corner, borderColor: '#ffc9cc', background: '#fff8f8' }}>
+                    <div style={{ ...s.cornerLabel, color: '#e63946' }}>🔴 Красный угол</div>
+                    <FighterSelect
                         value={fighter1Id}
-                        onChange={e => setFighter1Id(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        <option value="">Выберите бойца</option>
-                        {fighters.map(fighter => (
-                            <option key={fighter._id} value={fighter._id}>
-                                {fighter.name}
-                                {fighter.team && ` (${fighter.team})`}
-                                {fighter.weight && ` - ${fighter.weight}`}
-                            </option>
-                        ))}
-                    </select>
-                    
-                    {fighter1Id && (
-                        <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-                            {(() => {
-                                const f = fighters.find(f => f._id === fighter1Id)
-                                return f ? (
-                                    <>
-                                        <div><strong>{f.name}</strong></div>
-                                        {f.team && <div>📍 {f.team}</div>}
-                                        {f.weight && <div>⚖️ {f.weight}</div>}
-                                    </>
-                                ) : null
-                            })()}
-                        </div>
-                    )}
+                        onChange={setFighter1Id}
+                        fighters={fighters}
+                        disabledId={fighter2Id}
+                        corner="red"
+                        disabled={submitting}
+                    />
                 </div>
 
-                {/* Боец 2 */}
-                <div style={{ padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '8px' }}>
-                    <h4 style={{ marginTop: 0 }}>🔵 Боец 2 (Синий угол)</h4>
-                    <select
+                {/* VS разделитель */}
+                <div style={s.vs}>
+                    <div style={s.vsLine} />
+                    <span style={s.vsText}>VS</span>
+                    <div style={s.vsLine} />
+                </div>
+
+                {/* Синий угол */}
+                <div style={{ ...s.corner, borderColor: '#c7d9fd', background: '#f8fbff' }}>
+                    <div style={{ ...s.cornerLabel, color: '#1d6fe5' }}>🔵 Синий угол</div>
+                    <FighterSelect
                         value={fighter2Id}
-                        onChange={e => setFighter2Id(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        <option value="">Выберите бойца</option>
-                        {fighters.map(fighter => (
-                            <option 
-                                key={fighter._id} 
-                                value={fighter._id}
-                                disabled={fighter._id === fighter1Id}
-                            >
-                                {fighter.name}
-                                {fighter.team && ` (${fighter.team})`}
-                                {fighter.weight && ` - ${fighter.weight}`}
-                            </option>
-                        ))}
-                    </select>
-                    
-                    {fighter2Id && (
-                        <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-                            {(() => {
-                                const f = fighters.find(f => f._id === fighter2Id)
-                                return f ? (
-                                    <>
-                                        <div><strong>{f.name}</strong></div>
-                                        {f.team && <div>📍 {f.team}</div>}
-                                        {f.weight && <div>⚖️ {f.weight}</div>}
-                                    </>
-                                ) : null
-                            })()}
-                        </div>
-                    )}
+                        onChange={setFighter2Id}
+                        fighters={fighters}
+                        disabledId={fighter1Id}
+                        corner="blue"
+                        disabled={submitting}
+                    />
                 </div>
             </div>
 
-            {error && (
-                <div style={{ color: 'red', marginTop: '10px', padding: '10px', backgroundColor: '#ffebee', borderRadius: '4px' }}>
-                    ❌ {error}
-                </div>
-            )}
-
-            {success && (
-                <div style={{ color: 'green', marginTop: '10px', padding: '10px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-                    ✅ {success}
-                </div>
-            )}
+            {error && <div style={s.errorBox}>❌ {error}</div>}
+            {success && <div style={s.successBox}>✅ {success}</div>}
 
             <button
                 onClick={handleSubmit}
-                disabled={!fighter1Id || !fighter2Id || fighter1Id === fighter2Id}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    fontSize: '18px',
-                    marginTop: '15px',
-                    cursor: (!fighter1Id || !fighter2Id || fighter1Id === fighter2Id) ? 'not-allowed' : 'pointer',
-                    backgroundColor: (!fighter1Id || !fighter2Id || fighter1Id === fighter2Id) ? '#ccc' : '#2196F3',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontWeight: 'bold'
-                }}
+                disabled={!canSubmit}
+                style={{ ...s.btn, opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? 'pointer' : 'not-allowed' }}
             >
-                Создать бой
+                {submitting ? 'Создание...' : 'Создать бой'}
             </button>
         </div>
     )
 }
 
-export default observer(CreateFightForm)
+const s: Record<string, React.CSSProperties> = {
+    wrap: {
+        padding: '20px',
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 12,
+        backgroundColor: '#f4f6fb',
+    },
+    title: {
+        margin: '0 0 18px 0',
+        fontSize: 16,
+        fontWeight: 700,
+        color: '#14172b',
+        fontFamily: "'Manrope', sans-serif",
+    },
+    grid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
+        gap: 12,
+        alignItems: 'start',
+        marginBottom: 14,
+    },
+    corner: {
+        padding: '14px',
+        borderRadius: 10,
+        border: '1.5px solid',
+    },
+    cornerLabel: {
+        fontSize: 13,
+        fontWeight: 700,
+        marginBottom: 10,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    vs: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        paddingTop: 40,
+        gap: 6,
+    },
+    vsLine: {
+        width: 1,
+        height: 20,
+        background: '#e4e8f4',
+    },
+    vsText: {
+        fontFamily: "'Unbounded', sans-serif",
+        fontSize: 13,
+        fontWeight: 900,
+        color: '#8890aa',
+    },
+    searchInput: {
+        width: '100%',
+        padding: '8px 10px',
+        fontSize: 13,
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 7,
+        marginBottom: 6,
+        boxSizing: 'border-box' as const,
+        fontFamily: "'Manrope', sans-serif",
+        outline: 'none',
+        backgroundColor: '#fff',
+    },
+    select: {
+        width: '100%',
+        padding: '6px 8px',
+        fontSize: 13,
+        border: '1.5px solid',
+        borderRadius: 7,
+        backgroundColor: '#fff',
+        fontFamily: "'Manrope', sans-serif",
+        outline: 'none',
+        marginBottom: 8,
+        boxSizing: 'border-box' as const,
+    },
+    noResults: {
+        fontSize: 12,
+        color: '#8890aa',
+        padding: '6px 0',
+        fontFamily: "'Manrope', sans-serif",
+    },
+    preview: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '10px',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        border: '1.5px solid',
+        marginTop: 4,
+    },
+    avatar: {
+        width: 44,
+        height: 44,
+        borderRadius: '50%',
+        objectFit: 'cover' as const,
+        flexShrink: 0,
+        border: '2px solid #e4e8f4',
+    },
+    avatarPlaceholder: {
+        width: 44,
+        height: 44,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 20,
+        flexShrink: 0,
+        border: '2px solid #e4e8f4',
+    },
+    previewInfo: {
+        flex: 1,
+        minWidth: 0,
+    },
+    previewName: {
+        fontSize: 13,
+        fontWeight: 700,
+        color: '#14172b',
+        fontFamily: "'Manrope', sans-serif",
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+    previewMeta: {
+        fontSize: 11,
+        color: '#8890aa',
+        fontFamily: "'Manrope', sans-serif",
+        marginTop: 2,
+    },
+    loadingWrap: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '20px',
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 12,
+        backgroundColor: '#f4f6fb',
+    },
+    spinner: {
+        width: 24,
+        height: 24,
+        border: '2px solid #e4e8f4',
+        borderTopColor: '#1d6fe5',
+        borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+        flexShrink: 0,
+    },
+    emptyWrap: {
+        padding: '24px 20px',
+        backgroundColor: '#fff8f0',
+        borderRadius: 12,
+        border: '1.5px solid #fdd5ae',
+        textAlign: 'center',
+    },
+    emptyText: {
+        fontSize: 13,
+        fontWeight: 600,
+        color: '#f4802a',
+        fontFamily: "'Manrope', sans-serif",
+    },
+    errorBox: {
+        color: '#e63946',
+        marginBottom: 10,
+        padding: '10px 12px',
+        backgroundColor: '#fff1f2',
+        borderRadius: 8,
+        border: '1px solid #ffc9cc',
+        fontSize: 13,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    successBox: {
+        color: '#2cb67d',
+        marginBottom: 10,
+        padding: '10px 12px',
+        backgroundColor: '#f0faf5',
+        borderRadius: 8,
+        border: '1px solid #b2e8d0',
+        fontSize: 13,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    btn: {
+        width: '100%',
+        padding: '11px',
+        fontSize: 14,
+        backgroundColor: '#1d6fe5',
+        color: 'white',
+        border: 'none',
+        borderRadius: 8,
+        fontWeight: 700,
+        fontFamily: "'Manrope', sans-serif",
+        transition: 'opacity 0.15s',
+    },
+}
+
+export default CreateFightForm

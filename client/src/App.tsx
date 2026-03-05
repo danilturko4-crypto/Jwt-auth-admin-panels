@@ -17,21 +17,36 @@ const App: FC = () => {
         }
     }, [])
 
+    // Единый лоадер на всё приложение — показывается только пока идёт checkAuth
     if (store.isLoading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
                 height: '100vh',
-                fontSize: '24px'
+                gap: 14,
+                fontFamily: "'Manrope', sans-serif",
+                background: '#f4f6fb'
             }}>
-                ⏳ Загрузка...
+                <div style={{
+                    width: 40,
+                    height: 40,
+                    border: '3px solid #e4e8f4',
+                    borderTopColor: '#1d6fe5',
+                    borderRadius: '50%',
+                    animation: 'spin 0.7s linear infinite'
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <span style={{ color: '#8890aa', fontSize: 14, fontWeight: 600 }}>
+                    Загрузка...
+                </span>
             </div>
         )
     }
 
-    // Публичный режим (для зрителей) - если не на пути /admin и не авторизован
+    // Публичный режим для зрителей
     if (!isAdminPath && !store.isAuth) {
         return <PublicView />
     }
@@ -50,12 +65,14 @@ const App: FC = () => {
                         onClick={() => window.location.href = '/'}
                         style={{
                             padding: '10px 20px',
-                            backgroundColor: '#666',
+                            backgroundColor: '#1d6fe5',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: 8,
                             cursor: 'pointer',
-                            fontSize: '16px'
+                            fontSize: 14,
+                            fontWeight: 600,
+                            fontFamily: "'Manrope', sans-serif"
                         }}
                     >
                         ← На главную
@@ -67,15 +84,23 @@ const App: FC = () => {
     }
 
     // Роутинг по ролям
-    if (store.isSuperAdmin) {
-        return <SuperAdminPanel/>
-    }
+    if (store.isSuperAdmin) return <SuperAdminPanel />
+    if (store.isAdmin) return <AdminPanel />
 
-    if (store.isAdmin) {
-        return <AdminPanel />
-    }
-
-    return <div>Неизвестная роль</div>
+    return (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            fontFamily: "'Manrope', sans-serif",
+            color: '#8890aa',
+            fontSize: 14,
+            fontWeight: 600
+        }}>
+            Неизвестная роль
+        </div>
+    )
 }
 
-export default observer(App);
+export default observer(App)

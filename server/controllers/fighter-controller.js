@@ -1,6 +1,7 @@
 const ApiError = require('../exceptions/api-error')
 const fighterService = require('../service/fighter-service')
 const { validationResult } = require('express-validator')
+const { uploadToCloudinary } = require('../utils/cloudinary')
 
 class FighterController {
     
@@ -12,8 +13,13 @@ class FighterController {
             }
             const { name, team, weight } = req.body
             const userId = req.user.id
-            
-            const fighter = await fighterService.createFighter(name, team, weight, userId)
+
+            let photoUrl = ''
+            if (req.file) {
+                photoUrl = await uploadToCloudinary(req.file.buffer)
+            }
+
+            const fighter = await fighterService.createFighter(name, team, weight, userId, photoUrl)
             return res.json(fighter)
         } catch (error) {
             next(error)

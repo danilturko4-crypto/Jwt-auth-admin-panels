@@ -23,7 +23,7 @@ class PublicController {
         try {
             console.log('📥 Запрос на получение активных боев')
             const fights = await FightModel.find({
-                status: { $in: ['scheduled', 'in_progress'] }
+                status: { $in: ['scheduled', 'in_progress', 'completed'] }
             })
                 .populate('tatami', 'number name')
                 .populate('fighter1', 'name team weight')

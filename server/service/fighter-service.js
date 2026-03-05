@@ -5,9 +5,9 @@ const ApiError = require('../exceptions/api-error')
 class FighterService {
     
     // Создать бойца
-    async createFighter(name, team, weight, userId) {
+    async createFighter(name, team, weight, userId, photoUrl) {
         const user = await UserModel.findById(userId)
-        
+
         // Проверяем права (админ или суперадмин)
         if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
             throw ApiError.BadRequest('Нет прав для создания бойца')
@@ -17,6 +17,7 @@ class FighterService {
             name,
             team: team || '',
             weight: weight || '',
+            photo: photoUrl || '',
             createdBy: userId
         })
 

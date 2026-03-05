@@ -7,9 +7,15 @@ export default class FighterService {
     static async createFighter(
         name: string,
         team: string,
-        weight: string
+        weight: string,
+        photo?: File | null
     ): Promise<AxiosResponse<IFighter>> {
-        return $api.post('/fighter/create', { name, team, weight })
+        const formData = new FormData()
+        formData.append('name', name)
+        formData.append('team', team)
+        formData.append('weight', weight)
+        if (photo) formData.append('photo', photo)
+        return $api.post('/fighter/create', formData)
     }
 
     static async getAllFighters(): Promise<AxiosResponse<IFighter[]>> {

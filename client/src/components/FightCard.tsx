@@ -1,5 +1,4 @@
 import React, { useState, type FC } from "react";
-import { observer } from "mobx-react-lite";
 import type { IFight } from "../models/IFight";
 import type { IFighter } from "../models/IFighter";
 
@@ -8,322 +7,250 @@ interface Props {
     canEdit: boolean;
     fighters?: IFighter[];
     onStatusChange: (fightId: string, status: string) => void;
-    onResultChange: (fightId: string, winner: string, score: any) => void;
+    onResultChange: (fightId: string, winner: string, score: { fighter1: number; fighter2: number }) => void;
     onEditFight?: (fightId: string, fighter1Id: string, fighter2Id: string) => void;
 }
 
+// ── Карточка бойца (в режиме боя) ───────────────────
+const FighterScoreCard: FC<{
+    fighter: IFight['fighter1']
+    score: number
+    corner: 'red' | 'blue'
+    onIncrement: () => void
+    onDecrement: () => void
+}> = ({ fighter, score, corner, onIncrement, onDecrement }) => {
+    const [hovered, setHovered] = useState(false)
+    const color = corner === 'red' ? '#e63946' : '#1d6fe5'
+    const bgHover = corner === 'red' ? '#fff1f2' : '#eff6ff'
+    const borderColor = corner === 'red' ? '#ffc9cc' : '#c7d9fd'
+
+    return (
+        <div
+            onClick={onIncrement}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                padding: '20px',
+                backgroundColor: hovered ? bgHover : '#fff',
+                borderRadius: 12,
+                border: `2px solid ${hovered ? color : borderColor}`,
+                cursor: 'pointer',
+                userSelect: 'none',
+                transition: 'all 0.15s',
+                textAlign: 'center',
+                transform: hovered ? 'scale(1.02)' : 'scale(1)',
+            }}
+        >
+            {fighter.photo ? (
+                <img src={fighter.photo} alt={fighter.name} style={{
+                    width: 56, height: 56, borderRadius: '50%',
+                    objectFit: 'cover', border: `2px solid ${borderColor}`,
+                    marginBottom: 8, display: 'block', margin: '0 auto 8px'
+                }} />
+            ) : (
+                <div style={{
+                    width: 56, height: 56, borderRadius: '50%',
+                    background: corner === 'red' ? '#ffebee' : '#eff6ff',
+                    border: `2px solid ${borderColor}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 24, margin: '0 auto 8px'
+                }}>
+                    {corner === 'red' ? '🔴' : '🔵'}
+                </div>
+            )}
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, color: '#14172b', fontFamily: "'Manrope', sans-serif" }}>
+                {fighter.name}
+            </div>
+            <div style={{ fontSize: 52, fontWeight: 900, color, lineHeight: 1, marginBottom: 12, fontFamily: "'Unbounded', sans-serif" }}>
+                {score}
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <button
+                    onClick={e => { e.stopPropagation(); onDecrement() }}
+                    style={{ ...s.scoreBtn, background: color }}
+                >
+                    −
+                </button>
+                <button
+                    onClick={e => { e.stopPropagation(); onIncrement() }}
+                    style={{ ...s.scoreBtn, background: color }}
+                >
+                    +
+                </button>
+            </div>
+        </div>
+    )
+}
+
+// ── Карточка бойца (статичная) ───────────────────────
+const FighterStaticCard: FC<{
+    fighter: IFight['fighter1']
+    score: number
+    corner: 'red' | 'blue'
+    isWinner: boolean
+}> = ({ fighter, score, corner, isWinner }) => {
+    const color = corner === 'red' ? '#e63946' : '#1d6fe5'
+    const borderColor = corner === 'red' ? '#ffc9cc' : '#c7d9fd'
+
+    return (
+        <div style={{
+            padding: '16px',
+            backgroundColor: isWinner ? '#f0faf5' : '#f4f6fb',
+            borderRadius: 12,
+            border: `1.5px solid ${isWinner ? '#b2e8d0' : borderColor}`,
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                {fighter.photo ? (
+                    <img src={fighter.photo} alt={fighter.name} style={{
+                        width: 44, height: 44, borderRadius: '50%',
+                        objectFit: 'cover', border: `2px solid ${borderColor}`, flexShrink: 0
+                    }} />
+                ) : (
+                    <div style={{
+                        width: 44, height: 44, borderRadius: '50%',
+                        background: corner === 'red' ? '#ffebee' : '#eff6ff',
+                        border: `2px solid ${borderColor}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 20, flexShrink: 0
+                    }}>
+                        {corner === 'red' ? '🔴' : '🔵'}
+                    </div>
+                )}
+                <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#14172b', fontFamily: "'Manrope', sans-serif" }}>
+                        {isWinner && '👑 '}{fighter.name}
+                    </div>
+                    {fighter.team && <div style={s.meta}>📍 {fighter.team}</div>}
+                    {fighter.weight && <div style={s.meta}>⚖️ {fighter.weight}</div>}
+                </div>
+            </div>
+            <div style={{ fontSize: 32, fontWeight: 900, color, fontFamily: "'Unbounded', sans-serif" }}>
+                {score}
+            </div>
+        </div>
+    )
+}
+
+// ── Основной компонент ───────────────────────────────
 const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, onResultChange, onEditFight }) => {
+    const [score1, setScore1] = useState(fight.score.fighter1)
+    const [score2, setScore2] = useState(fight.score.fighter2)
     const [showEditForm, setShowEditForm] = useState(false)
-    const [score1, setScore1] = useState(fight.score.fighter1.toString())
-    const [score2, setScore2] = useState(fight.score.fighter2.toString())
     const [editFighter1, setEditFighter1] = useState(fight.fighter1._id)
     const [editFighter2, setEditFighter2] = useState(fight.fighter2._id)
+    const [editError, setEditError] = useState('')
+    const [confirmAction, setConfirmAction] = useState<'cancel' | 'finish' | null>(null)
 
-    const getStatusColor = () => {
-        switch (fight.status) {
-            case 'scheduled': return '#ffc107';
-            case 'in_progress': return '#2196F3';
-            case 'completed': return '#4caf50';
-            case 'cancelled': return '#f44336';
-            default: return '#999';
-        }
+    const statusConfig = {
+        scheduled:   { color: '#f4802a', text: '⏰ Ожидает' },
+        in_progress: { color: '#1d6fe5', text: '▶️ Идёт' },
+        completed:   { color: '#2cb67d', text: '✅ Завершён' },
+        cancelled:   { color: '#e63946', text: '❌ Отменён' },
     }
-
-    const getStatusText = () => {
-        switch (fight.status) {
-            case 'scheduled': return '⏰ Ожидает';
-            case 'in_progress': return '▶️ Идет';
-            case 'completed': return '✅ Завершен';
-            case 'cancelled': return '❌ Отменен';
-            default: return '';
-        }
-    }
+    const status = statusConfig[fight.status as keyof typeof statusConfig] ?? { color: '#8890aa', text: '' }
 
     const handleSaveResult = () => {
-        const s1 = parseInt(score1) || 0
-        const s2 = parseInt(score2) || 0
-
-        let winner: string = 'draw'
-        if (s1 > s2) winner = 'fighter1'
-        else if (s2 > s1) winner = 'fighter2'
-
-        onResultChange(fight._id, winner, { fighter1: s1, fighter2: s2 })
-        setShowScoreForm(false)
+        const winner = score1 > score2 ? 'fighter1' : score2 > score1 ? 'fighter2' : 'draw'
+        onResultChange(fight._id, winner, { fighter1: score1, fighter2: score2 })
+        setConfirmAction(null)
     }
 
     const handleSaveEdit = () => {
         if (editFighter1 === editFighter2) {
-            alert('Выберите разных бойцов')
+            setEditError('Выберите разных бойцов')
             return
         }
-        if (onEditFight) {
-            onEditFight(fight._id, editFighter1, editFighter2)
-            setShowEditForm(false)
-        }
+        onEditFight?.(fight._id, editFighter1, editFighter2)
+        setShowEditForm(false)
+        setEditError('')
     }
 
     return (
-        <div style={{
-            padding: '20px',
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            border: `3px solid ${getStatusColor()}`,
-            marginBottom: '15px'
-        }}>
+        <div style={s.card}>
+            {/* Цветная полоска статуса сверху */}
+            <div style={{ ...s.statusStripe, background: status.color }} />
+
             {/* Заголовок */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <div style={s.cardHeader}>
                 <div>
-                    <h4 style={{ margin: 0 }}>🥋 Татами №{fight.tatami.number} - {fight.tatami.name}</h4>
-                    <span style={{
-                        color: getStatusColor(),
-                        fontWeight: 'bold',
-                        fontSize: '14px'
-                    }}>
-                        {getStatusText()}
-                    </span>
+                    <div style={s.tatamiLabel}>🥋 Татами №{fight.tatami.number} — {fight.tatami.name}</div>
+                    <div style={{ ...s.statusText, color: status.color }}>{status.text}</div>
                 </div>
-                <div style={{ fontSize: '12px', color: '#999' }}>
-                    {new Date(fight.createdAt).toLocaleString('ru-RU')}
-                </div>
+                <div style={s.dateText}>{new Date(fight.createdAt).toLocaleString('ru-RU')}</div>
             </div>
 
             {/* Бойцы */}
-            {fight.status === 'in_progress' ? (
-                // Интерактивные карточки во время боя
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
-                    {/* Боец 1 */}
-                    <div
-                        onClick={() => setScore1((parseInt(score1) || 0) + 1)}
-                        style={{
-                            padding: '20px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            border: '3px solid #f44336',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            transition: 'all 0.2s',
-                            textAlign: 'center'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#ffebee'
-                            e.currentTarget.style.transform = 'scale(1.05)'
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fff'
-                            e.currentTarget.style.transform = 'scale(1)'
-                        }}
-                    >
-                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>
-                            🔴 {fight.fighter1.name}
+            <div style={s.matchup}>
+                {fight.status === 'in_progress' ? (
+                    <>
+                        <FighterScoreCard
+                            fighter={fight.fighter1}
+                            score={score1}
+                            corner="red"
+                            onIncrement={() => setScore1(s1 => s1 + 1)}
+                            onDecrement={() => setScore1(s1 => Math.max(0, s1 - 1))}
+                        />
+                        <div style={s.vsBlock}>
+                            <div style={s.vsLine} />
+                            <span style={s.vsText}>VS</span>
+                            <div style={s.vsLine} />
                         </div>
-                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#f44336', marginBottom: '10px' }}>
-                            {score1}
+                        <FighterScoreCard
+                            fighter={fight.fighter2}
+                            score={score2}
+                            corner="blue"
+                            onIncrement={() => setScore2(s2 => s2 + 1)}
+                            onDecrement={() => setScore2(s2 => Math.max(0, s2 - 1))}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <FighterStaticCard
+                            fighter={fight.fighter1}
+                            score={fight.score.fighter1}
+                            corner="red"
+                            isWinner={fight.winner === 'fighter1'}
+                        />
+                        <div style={s.vsBlock}>
+                            <div style={s.vsLine} />
+                            <span style={s.vsText}>VS</span>
+                            <div style={s.vsLine} />
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setScore1(Math.max(0, (parseInt(score1) || 0) - 1))
-                                }}
-                                style={{
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    backgroundColor: '#f44336',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ➖
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setScore1((parseInt(score1) || 0) + 1)
-                                }}
-                                style={{
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    backgroundColor: '#f44336',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ➕
-                            </button>
-                        </div>
-                    </div>
+                        <FighterStaticCard
+                            fighter={fight.fighter2}
+                            score={fight.score.fighter2}
+                            corner="blue"
+                            isWinner={fight.winner === 'fighter2'}
+                        />
+                    </>
+                )}
+            </div>
 
-                    {/* VS */}
-                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
-                        VS
-                    </div>
-
-                    {/* Боец 2 */}
-                    <div
-                        onClick={() => setScore2((parseInt(score2) || 0) + 1)}
-                        style={{
-                            padding: '20px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            border: '3px solid #2196F3',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            transition: 'all 0.2s',
-                            textAlign: 'center'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#e3f2fd'
-                            e.currentTarget.style.transform = 'scale(1.05)'
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fff'
-                            e.currentTarget.style.transform = 'scale(1)'
-                        }}
-                    >
-                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>
-                            🔵 {fight.fighter2.name}
-                        </div>
-                        <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#2196F3', marginBottom: '10px' }}>
-                            {score2}
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setScore2(Math.max(0, (parseInt(score2) || 0) - 1))
-                                }}
-                                style={{
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    backgroundColor: '#2196F3',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ➖
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setScore2((parseInt(score2) || 0) + 1)
-                                }}
-                                style={{
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    backgroundColor: '#2196F3',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ➕
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                // Обычные карточки до боя и после
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '20px', alignItems: 'center' }}>
-                    {/* Боец 1 */}
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: fight.winner === 'fighter1' ? '#c8e6c9' : '#f5f5f5',
-                        borderRadius: '8px',
-                        border: fight.winner === 'fighter1' ? '2px solid #4caf50' : 'none'
-                    }}>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                            {fight.winner === 'fighter1' && '👑 '}
-                            🔴 {fight.fighter1.name}
-                        </div>
-                        {fight.fighter1.team && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Команда: {fight.fighter1.team}
-                            </div>
-                        )}
-                        {fight.fighter1.weight && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Вес: {fight.fighter1.weight}
-                            </div>
-                        )}
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#f44336' }}>
-                            {fight.score.fighter1}
-                        </div>
-                    </div>
-
-                    {/* VS */}
-                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#999' }}>
-                        VS
-                    </div>
-
-                    {/* Боец 2 */}
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: fight.winner === 'fighter2' ? '#c8e6c9' : '#f5f5f5',
-                        borderRadius: '8px',
-                        border: fight.winner === 'fighter2' ? '2px solid #4caf50' : 'none'
-                    }}>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '5px' }}>
-                            {fight.winner === 'fighter2' && '👑 '}
-                            🔵 {fight.fighter2.name}
-                        </div>
-                        {fight.fighter2.team && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Команда: {fight.fighter2.team}
-                            </div>
-                        )}
-                        {fight.fighter2.weight && (
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                Вес: {fight.fighter2.weight}
-                            </div>
-                        )}
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '10px', color: '#2196F3' }}>
-                            {fight.score.fighter2}
-                        </div>
-                    </div>
+            {/* Результат */}
+            {fight.status === 'completed' && fight.winner && (
+                <div style={s.winnerBox}>
+                    🏆 Победитель: {
+                        fight.winner === 'fighter1' ? fight.fighter1.name :
+                        fight.winner === 'fighter2' ? fight.fighter2.name : 'Ничья'
+                    }
                 </div>
             )}
 
             {/* Управление */}
             {canEdit && (
-                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={s.controls}>
                     {fight.status === 'scheduled' && (
                         <>
-                            <button
-                                onClick={() => onStatusChange(fight._id, 'in_progress')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: '#2196F3',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
+                            <button style={{ ...s.btn, background: '#1d6fe5' }} onClick={() => onStatusChange(fight._id, 'in_progress')}>
                                 ▶️ Начать бой
                             </button>
                             {onEditFight && fighters.length > 0 && (
-                                <button
-                                    onClick={() => {
-                                        setEditFighter1(fight.fighter1._id)
-                                        setEditFighter2(fight.fighter2._id)
-                                        setShowEditForm(!showEditForm)
-                                    }}
-                                    style={{
-                                        padding: '10px 20px',
-                                        backgroundColor: '#ff9800',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
+                                <button style={{ ...s.btn, background: '#f4802a' }} onClick={() => {
+                                    setEditFighter1(fight.fighter1._id)
+                                    setEditFighter2(fight.fighter2._id)
+                                    setShowEditForm(v => !v)
+                                    setEditError('')
+                                }}>
                                     ✏️ Изменить бойцов
                                 </button>
                             )}
@@ -332,127 +259,261 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
 
                     {fight.status === 'in_progress' && (
                         <>
-                            <button
-                                onClick={() => onStatusChange(fight._id, 'cancelled')}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: '#f44336',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
+                            <button style={{ ...s.btn, background: '#e63946' }} onClick={() => setConfirmAction('cancel')}>
                                 ❌ Отменить бой
                             </button>
-                            <button
-                                onClick={handleSaveResult}
-                                style={{
-                                    padding: '10px 20px',
-                                    backgroundColor: '#4caf50',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                ✅ Завершить с текущим счетом
+                            <button style={{ ...s.btn, background: '#2cb67d' }} onClick={() => setConfirmAction('finish')}>
+                                ✅ Завершить
                             </button>
                         </>
                     )}
                 </div>
             )}
 
-            {/* Форма изменения бойцов */}
-            {showEditForm && (
-                <div style={{
-                    marginTop: '15px',
-                    padding: '15px',
-                    backgroundColor: '#fff3e0',
-                    borderRadius: '8px',
-                    border: '1px solid #ff9800'
-                }}>
-                    <h4 style={{ marginTop: 0 }}>✏️ Исправить бойцов:</h4>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <div>
-                            <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>🔴 Боец 1</div>
-                            <select
-                                value={editFighter1}
-                                onChange={e => setEditFighter1(e.target.value)}
-                                style={{ padding: '8px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ccc' }}
-                            >
-                                {fighters.map(f => (
-                                    <option key={f._id} value={f._id}>
-                                        {f.name}{f.team ? ` (${f.team})` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#999', paddingTop: '18px' }}>VS</div>
-                        <div>
-                            <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>🔵 Боец 2</div>
-                            <select
-                                value={editFighter2}
-                                onChange={e => setEditFighter2(e.target.value)}
-                                style={{ padding: '8px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ccc' }}
-                            >
-                                {fighters.map(f => (
-                                    <option key={f._id} value={f._id}>
-                                        {f.name}{f.team ? ` (${f.team})` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', paddingTop: '18px' }}>
-                            <button
-                                onClick={handleSaveEdit}
-                                style={{
-                                    padding: '8px 16px',
-                                    backgroundColor: '#ff9800',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Сохранить
-                            </button>
-                            <button
-                                onClick={() => setShowEditForm(false)}
-                                style={{
-                                    padding: '8px 16px',
-                                    backgroundColor: '#999',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Отмена
-                            </button>
-                        </div>
+            {/* Подтверждение действия */}
+            {confirmAction && (
+                <div style={confirmAction === 'cancel' ? s.confirmDanger : s.confirmSuccess}>
+                    <div style={s.confirmText}>
+                        {confirmAction === 'cancel'
+                            ? '❌ Отменить бой? Это действие необратимо.'
+                            : `✅ Завершить бой со счётом ${score1} : ${score2}?`
+                        }
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                            style={{ ...s.btn, background: confirmAction === 'cancel' ? '#e63946' : '#2cb67d' }}
+                            onClick={() => {
+                                if (confirmAction === 'cancel') onStatusChange(fight._id, 'cancelled')
+                                else handleSaveResult()
+                                setConfirmAction(null)
+                            }}
+                        >
+                            Подтвердить
+                        </button>
+                        <button style={{ ...s.btn, background: '#8890aa' }} onClick={() => setConfirmAction(null)}>
+                            Отмена
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* Результат */}
-            {fight.status === 'completed' && fight.winner && (
-                <div style={{
-                    marginTop: '15px',
-                    padding: '10px',
-                    backgroundColor: '#c8e6c9',
-                    borderRadius: '4px',
-                    fontWeight: 'bold'
-                }}>
-                    🏆 Победитель: {
-                        fight.winner === 'fighter1' ? fight.fighter1.name :
-                        fight.winner === 'fighter2' ? fight.fighter2.name :
-                        'Ничья'
-                    }
+            {/* Форма изменения бойцов */}
+            {showEditForm && (
+                <div style={s.editForm}>
+                    <div style={s.editTitle}>✏️ Изменить бойцов</div>
+                    <div style={s.editRow}>
+                        <div style={{ flex: 1 }}>
+                            <div style={s.editLabel}>🔴 Боец 1</div>
+                            <select
+                                value={editFighter1}
+                                onChange={e => { setEditFighter1(e.target.value); setEditError('') }}
+                                style={s.editSelect}
+                            >
+                                {fighters.map(f => (
+                                    <option key={f._id} value={f._id} disabled={f._id === editFighter2}>
+                                        {f.name}{f.team ? ` (${f.team})` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div style={{ ...s.vsText, paddingTop: 20, flexShrink: 0 }}>VS</div>
+                        <div style={{ flex: 1 }}>
+                            <div style={s.editLabel}>🔵 Боец 2</div>
+                            <select
+                                value={editFighter2}
+                                onChange={e => { setEditFighter2(e.target.value); setEditError('') }}
+                                style={s.editSelect}
+                            >
+                                {fighters.map(f => (
+                                    <option key={f._id} value={f._id} disabled={f._id === editFighter1}>
+                                        {f.name}{f.team ? ` (${f.team})` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    {editError && <div style={s.editError}>❌ {editError}</div>}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                        <button style={{ ...s.btn, background: '#f4802a' }} onClick={handleSaveEdit}>Сохранить</button>
+                        <button style={{ ...s.btn, background: '#8890aa' }} onClick={() => { setShowEditForm(false); setEditError('') }}>Отмена</button>
+                    </div>
                 </div>
             )}
         </div>
     )
 }
 
-export default observer(FightCard)
+const s: Record<string, React.CSSProperties> = {
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 14,
+        border: '1.5px solid #e4e8f4',
+        marginBottom: 12,
+        overflow: 'hidden',
+        boxShadow: '0 2px 16px rgba(29,111,229,0.07)',
+        fontFamily: "'Manrope', sans-serif",
+        position: 'relative',
+    },
+    statusStripe: {
+        height: 3,
+        width: '100%',
+    },
+    cardHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        padding: '14px 18px 10px',
+        borderBottom: '1px solid #e4e8f4',
+    },
+    tatamiLabel: {
+        fontSize: 14,
+        fontWeight: 700,
+        color: '#14172b',
+        marginBottom: 3,
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: 700,
+    },
+    dateText: {
+        fontSize: 11,
+        color: '#8890aa',
+    },
+    matchup: {
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
+        gap: 12,
+        alignItems: 'center',
+        padding: '16px 18px',
+    },
+    vsBlock: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 6,
+    },
+    vsLine: {
+        width: 1,
+        height: 20,
+        background: '#e4e8f4',
+    },
+    vsText: {
+        fontFamily: "'Unbounded', sans-serif",
+        fontSize: 12,
+        fontWeight: 900,
+        color: '#8890aa',
+    },
+    meta: {
+        fontSize: 11,
+        color: '#8890aa',
+        marginTop: 2,
+    },
+    winnerBox: {
+        margin: '0 18px 14px',
+        padding: '10px 14px',
+        backgroundColor: '#f0faf5',
+        border: '1px solid #b2e8d0',
+        borderRadius: 8,
+        fontSize: 13,
+        fontWeight: 700,
+        color: '#2cb67d',
+    },
+    controls: {
+        display: 'flex',
+        gap: 8,
+        flexWrap: 'wrap',
+        padding: '0 18px 16px',
+    },
+    btn: {
+        padding: '9px 16px',
+        fontSize: 13,
+        color: '#fff',
+        border: 'none',
+        borderRadius: 8,
+        cursor: 'pointer',
+        fontWeight: 600,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    scoreBtn: {
+        padding: '8px 18px',
+        fontSize: 18,
+        color: '#fff',
+        border: 'none',
+        borderRadius: 7,
+        cursor: 'pointer',
+        fontWeight: 700,
+        lineHeight: 1,
+    },
+    confirmDanger: {
+        margin: '0 18px 16px',
+        padding: '12px 14px',
+        backgroundColor: '#fff1f2',
+        border: '1.5px solid #ffc9cc',
+        borderRadius: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        flexWrap: 'wrap' as const,
+    },
+    confirmSuccess: {
+        margin: '0 18px 16px',
+        padding: '12px 14px',
+        backgroundColor: '#f0faf5',
+        border: '1.5px solid #b2e8d0',
+        borderRadius: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        flexWrap: 'wrap' as const,
+    },
+    confirmText: {
+        fontSize: 13,
+        fontWeight: 600,
+        color: '#14172b',
+    },
+    editForm: {
+        margin: '0 18px 16px',
+        padding: '14px',
+        backgroundColor: '#fff8f0',
+        borderRadius: 10,
+        border: '1.5px solid #fdd5ae',
+    },
+    editTitle: {
+        fontSize: 13,
+        fontWeight: 700,
+        color: '#f4802a',
+        marginBottom: 12,
+    },
+    editRow: {
+        display: 'flex',
+        gap: 10,
+        alignItems: 'flex-end',
+    },
+    editLabel: {
+        fontSize: 12,
+        fontWeight: 600,
+        color: '#8890aa',
+        marginBottom: 4,
+    },
+    editSelect: {
+        width: '100%',
+        padding: '8px 10px',
+        fontSize: 13,
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 7,
+        backgroundColor: '#fff',
+        fontFamily: "'Manrope', sans-serif",
+        outline: 'none',
+        boxSizing: 'border-box' as const,
+    },
+    editError: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#e63946',
+        fontWeight: 600,
+    },
+}
+
+export default FightCard

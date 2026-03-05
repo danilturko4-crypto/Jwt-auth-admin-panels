@@ -1,178 +1,231 @@
-import React, { useContext, useState, type FC } from "react";
+import React, { useContext, useState, useRef, useEffect, useCallback, type FC } from "react";
 import { Context } from "../main";
-import { observer } from "mobx-react-lite";
+
+interface Admin {
+    id: string;
+    email: string;
+    assignedTatami?: any[];
+}
 
 interface Props {
-    admins: any[];
+    admins: Admin[];
 }
 
 const CreateTatamiForm: FC<Props> = ({ admins }) => {
-    const [number, setNumber] = useState<string>('')
-    const [name, setName] = useState<string>('')
-    const [adminId, setAdminId] = useState<string>('')
-    const [success, setSuccess] = useState<string>('')
-    const [error, setError] = useState<string>('')
+    const [number, setNumber] = useState('')
+    const [name, setName] = useState('')
+    const [adminId, setAdminId] = useState('')
+    const [success, setSuccess] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
     const { store } = useContext(Context)
-    const [selectedAdmin, setSelectedAdmin] = useState<any>(null)
+    const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const handleAdminChange = (e: any) => {
-        const id = e.target.value
-        const admin = admins.find(a => a.id === id)
-        setSelectedAdmin(admin)
-        setAdminId(id)
-    }
+    useEffect(() => {
+        return () => {
+            if (successTimerRef.current) clearTimeout(successTimerRef.current)
+            if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+        }
+    }, [])
 
-    const handleCreateTatami = async () => {
+    const selectedAdmin = admins.find(a => a.id === adminId) || null
+
+    const handleCreateTatami = useCallback(async () => {
+        if (loading) return
         setError('')
         setSuccess('')
-        
-        if (!number || !name || !adminId) {
-            setError('Заполните все поля')
+
+        const num = parseInt(number)
+        if (!number || isNaN(num) || num <= 0) {
+            setError('Введите корректный номер татами')
+            return
+        }
+        if (!name.trim()) {
+            setError('Введите название татами')
+            return
+        }
+        if (!adminId) {
+            setError('Выберите администратора')
             return
         }
 
+        setLoading(true)
         try {
-            console.log('📤 Создание татами:', { number, name, adminId }) 
-            
-            await store.createTatami(parseInt(number), name, adminId)
-            
-            setSuccess(`Татами №${number} "${name}" успешно создано!`)
+            await store.createTatami(num, name.trim(), adminId)
+            setSuccess(`Татами №${number} «${name.trim()}» успешно создано!`)
             setNumber('')
             setName('')
             setAdminId('')
-            
-            setTimeout(() => {
-                setSuccess('')
-            }, 3000)
+            successTimerRef.current = setTimeout(() => setSuccess(''), 3000)
         } catch (e: any) {
-            console.error('❌ Ошибка создания татами:', e)
-            setError(e?.response?.data?.message || 'Ошибка создания татами')
-            
-            setTimeout(() => {
-                setError('')
-            }, 5000)
+            const msg = e?.response?.data?.message || 'Ошибка создания татами'
+            setError(msg)
+            errorTimerRef.current = setTimeout(() => setError(''), 5000)
+        } finally {
+            setLoading(false)
         }
+    }, [loading, number, name, adminId, store])
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !loading) handleCreateTatami()
     }
 
+    const canSubmit = number && name.trim() && adminId && !loading
+    const tatamiCount = Array.isArray(selectedAdmin?.assignedTatami) ? selectedAdmin!.assignedTatami.length : 0
+
     return (
-        <div style={{ 
-            padding: '20px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            marginTop: '20px',
-            backgroundColor: '#f9f9f9'
-        }}>
-            <h3>🥋 Создать татами</h3>
-            
-            <input
-                type="number"
-                placeholder="Номер татами"
-                value={number}
-                onChange={e => setNumber(e.target.value)}
-                style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    marginBottom: '10px',
-                    fontSize: '16px',
-                    boxSizing: 'border-box'
-                }}
-            />
-            
-            <input
-                type="text"
-                placeholder="Название татами"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    marginBottom: '10px',
-                    fontSize: '16px',
-                    boxSizing: 'border-box'
-                }}
-            />
+        <div style={s.wrap}>
+            <h3 style={s.title}>🥋 Создать татами</h3>
 
-        <select
-            value={adminId}
-            onChange={handleAdminChange}
-            style={{
-                width: '100%',
-                padding: '10px',
-                marginBottom: '10px',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-            }}
-        >
-            <option value="">Выберите админа</option>
-            {admins.map(admin => {
-                const tatamiCount = Array.isArray(admin.assignedTatami) ? admin.assignedTatami.length : 0
-                return (
-                    <option key={admin.id} value={admin.id}>
-                        {admin.email} {tatamiCount > 0 ? `(${tatamiCount} татами)` : ''}
-                    </option>
-                )
-            })}
-        </select>
+            <div style={s.row}>
+                <input
+                    type="number"
+                    placeholder="Номер *"
+                    value={number}
+                    min={1}
+                    onChange={e => { setNumber(e.target.value); setError('') }}
+                    onKeyDown={handleKeyDown}
+                    disabled={loading}
+                    style={{ ...s.input, flex: '0 0 120px' }}
+                />
+                <input
+                    type="text"
+                    placeholder="Название татами *"
+                    value={name}
+                    onChange={e => { setName(e.target.value); setError('') }}
+                    onKeyDown={handleKeyDown}
+                    disabled={loading}
+                    style={{ ...s.input, flex: 1 }}
+                />
+            </div>
 
-            {selectedAdmin && Array.isArray(selectedAdmin.assignedTatami) && selectedAdmin.assignedTatami.length > 0 && (
-                <div style={{
-                    color: '#ff9800',
-                    marginBottom: '10px',
-                    padding: '10px',
-                    backgroundColor: '#fff3e0',
-                    borderRadius: '4px',
-                    border: '1px solid #ffb74d'
-                }}>
-                    ⓘ У админа {selectedAdmin.email} уже привязано {selectedAdmin.assignedTatami.length}
-                    {selectedAdmin.assignedTatami.length === 1 ? ' татами' : ' татами'}
+            <select
+                value={adminId}
+                onChange={e => { setAdminId(e.target.value); setError('') }}
+                disabled={loading}
+                style={s.select}
+            >
+                <option value="">— Выберите администратора —</option>
+                {[...admins]
+                    .sort((a, b) => a.email.localeCompare(b.email))
+                    .map(admin => {
+                        const count = Array.isArray(admin.assignedTatami) ? admin.assignedTatami.length : 0
+                        return (
+                            <option key={admin.id} value={admin.id}>
+                                {admin.email}{count > 0 ? ` · ${count} татами` : ''}
+                            </option>
+                        )
+                    })
+                }
+            </select>
+
+            {/* Предупреждение если у админа уже есть татами */}
+            {selectedAdmin && tatamiCount > 0 && (
+                <div style={s.warningBox}>
+                    ⓘ У {selectedAdmin.email} уже привязано {tatamiCount} {tatamiCount === 1 ? 'татами' : 'татами'}
                 </div>
             )}
 
-            {error && (
-                <div style={{ 
-                    color: '#d32f2f', 
-                    marginBottom: '10px', 
-                    padding: '10px', 
-                    backgroundColor: '#ffebee', 
-                    borderRadius: '4px',
-                    border: '1px solid #ef5350'
-                }}>
-                    ❌ {error}
-                </div>
-            )}
-
-            {success && (
-                <div style={{ 
-                    color: '#388e3c', 
-                    marginBottom: '10px', 
-                    padding: '10px', 
-                    backgroundColor: '#e8f5e9', 
-                    borderRadius: '4px',
-                    border: '1px solid #66bb6a'
-                }}>
-                    ✅ {success}
-                </div>
-            )}
+            {error && <div style={s.errorBox}>❌ {error}</div>}
+            {success && <div style={s.successBox}>✅ {success}</div>}
 
             <button
                 onClick={handleCreateTatami}
-                disabled={!number || !name || !adminId}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    fontSize: '16px',
-                    cursor: (!number || !name || !adminId) ? 'not-allowed' : 'pointer',
-                    backgroundColor: (!number || !name || !adminId) ? '#ccc' : '#2196F3',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    fontWeight: 'bold'
-                }}
+                disabled={!canSubmit}
+                style={{ ...s.btn, opacity: canSubmit ? 1 : 0.5, cursor: canSubmit ? 'pointer' : 'not-allowed' }}
             >
-                Создать татами
+                {loading ? 'Создание...' : 'Создать татами'}
             </button>
         </div>
     )
 }
 
-export default observer(CreateTatamiForm)
+const s: Record<string, React.CSSProperties> = {
+    wrap: {
+        padding: '20px',
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 12,
+        backgroundColor: '#f4f6fb',
+    },
+    title: {
+        margin: '0 0 16px 0',
+        fontSize: 16,
+        fontWeight: 700,
+        color: '#14172b',
+        fontFamily: "'Manrope', sans-serif",
+    },
+    row: {
+        display: 'flex',
+        gap: 10,
+        marginBottom: 10,
+    },
+    input: {
+        padding: '10px 12px',
+        fontSize: 14,
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        fontFamily: "'Manrope', sans-serif",
+        outline: 'none',
+        boxSizing: 'border-box' as const,
+        width: '100%',
+    },
+    select: {
+        width: '100%',
+        padding: '10px 12px',
+        fontSize: 14,
+        border: '1.5px solid #e4e8f4',
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        fontFamily: "'Manrope', sans-serif",
+        outline: 'none',
+        boxSizing: 'border-box' as const,
+        marginBottom: 10,
+    },
+    warningBox: {
+        color: '#f4802a',
+        marginBottom: 10,
+        padding: '10px 12px',
+        backgroundColor: '#fff8f0',
+        borderRadius: 8,
+        border: '1px solid #fdd5ae',
+        fontSize: 13,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    errorBox: {
+        color: '#e63946',
+        marginBottom: 10,
+        padding: '10px 12px',
+        backgroundColor: '#fff1f2',
+        borderRadius: 8,
+        border: '1px solid #ffc9cc',
+        fontSize: 13,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    successBox: {
+        color: '#2cb67d',
+        marginBottom: 10,
+        padding: '10px 12px',
+        backgroundColor: '#f0faf5',
+        borderRadius: 8,
+        border: '1px solid #b2e8d0',
+        fontSize: 13,
+        fontFamily: "'Manrope', sans-serif",
+    },
+    btn: {
+        width: '100%',
+        padding: '11px',
+        fontSize: 14,
+        backgroundColor: '#1d6fe5',
+        color: 'white',
+        border: 'none',
+        borderRadius: 8,
+        fontWeight: 700,
+        fontFamily: "'Manrope', sans-serif",
+        transition: 'opacity 0.15s',
+    },
+}
+
+export default CreateTatamiForm

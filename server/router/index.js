@@ -5,6 +5,7 @@ const fightController = require('../controllers/fight-controller')
 const publicController = require('../controllers/public-controller') 
 const fighterController = require('../controllers/fighter-controller')
 const authMiddleware = require('../middlewares/auth-middleware')
+const upload = require('../middlewares/upload-middleware')
 const { body } = require('express-validator')
 
 const router = new Router()
@@ -51,6 +52,7 @@ router.delete('/tatami/delete', authMiddleware, tatamiController.deleteTatami)
 // ========== FIGHTER MANAGEMENT ==========
 router.post('/fighter/create',
     authMiddleware,
+    upload.single('photo'),
     body('name').notEmpty(),
     fighterController.createFighter
 )
