@@ -152,8 +152,8 @@ body {
 
 /* ── STATS ── */
 .stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 28px;
 }
@@ -162,12 +162,14 @@ body {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px 18px;
+  padding: 14px 18px;
   box-shadow: var(--shadow);
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   animation: fadeUp 0.4s ease backwards;
+  flex: 1 1 auto;
 }
 
 .stat-card:nth-child(1) { animation-delay: 0.0s; }
@@ -181,13 +183,13 @@ body {
 }
 
 .stat-icon {
-  font-size: 18px;
-  margin-bottom: 6px;
+  font-size: 22px;
+  flex-shrink: 0;
 }
 
 .stat-value {
   font-family: 'Unbounded', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
   color: var(--text);
   line-height: 1;
@@ -197,6 +199,7 @@ body {
   font-size: 11px;
   color: var(--muted);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 /* ── TABS ── */
@@ -609,7 +612,7 @@ body {
 
   .stat-card {
     flex: 0 0 auto;
-    min-width: 100px;
+    padding: 10px 14px;
   }
 
   .header-inner {
@@ -676,10 +679,6 @@ body {
 @media (max-width: 480px) {
   .public-container {
     padding: 0 12px 32px;
-  }
-
-  .stat-card {
-    min-width: 80px;
   }
 
   .logo-text {
