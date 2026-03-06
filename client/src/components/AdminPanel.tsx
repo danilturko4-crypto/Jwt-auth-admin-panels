@@ -239,6 +239,8 @@ const s: Record<string, React.CSSProperties> = {
         fontWeight: 600,
         fontFamily: "'Manrope', sans-serif",
         transition: 'all 0.15s',
+        display: 'inline-flex',
+        alignItems: 'center',
     },
     tabActive: {
         padding: '10px 20px',
@@ -247,6 +249,8 @@ const s: Record<string, React.CSSProperties> = {
         border: '1.5px solid #1d6fe5',
         borderRadius: 8,
         cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
         fontSize: 14,
         fontWeight: 600,
         fontFamily: "'Manrope', sans-serif",

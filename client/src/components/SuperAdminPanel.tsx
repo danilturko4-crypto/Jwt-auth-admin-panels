@@ -303,6 +303,8 @@ const s: Record<string, React.CSSProperties> = {
         fontSize: 13,
         fontWeight: 600,
         fontFamily: "'Manrope', sans-serif",
+        display: 'inline-flex',
+        alignItems: 'center',
     },
     tabActive: {
         padding: '10px 16px',
@@ -315,6 +317,8 @@ const s: Record<string, React.CSSProperties> = {
         fontWeight: 600,
         fontFamily: "'Manrope', sans-serif",
         boxShadow: '0 4px 14px rgba(29,111,229,0.25)',
+        display: 'inline-flex',
+        alignItems: 'center',
     },
     sectionTitle: {
         margin: '0 0 14px 0',
