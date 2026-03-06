@@ -594,7 +594,22 @@ body {
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .stats-row {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .stats-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stat-card {
+    flex: 0 0 auto;
+    min-width: 100px;
   }
 
   .header-inner {
@@ -663,8 +678,8 @@ body {
     padding: 0 12px 32px;
   }
 
-  .stats-row {
-    grid-template-columns: 1fr;
+  .stat-card {
+    min-width: 80px;
   }
 
   .logo-text {
