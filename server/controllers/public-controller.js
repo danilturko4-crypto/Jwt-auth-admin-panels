@@ -101,12 +101,14 @@ class PublicController {
             const fightHistory = []
 
             fights.forEach(fight => {
+                if (!fight.fighter1 || !fight.fighter2) return
+
                 const isFighter1 = fight.fighter1._id.toString() === fighterId
-                
+
                 if (isFighter1) {
                     totalScore += fight.score.fighter1
                     opponentScore += fight.score.fighter2
-                    
+
                     if (fight.winner === 'fighter1') wins++
                     else if (fight.winner === 'fighter2') losses++
                     else draws++
@@ -117,14 +119,14 @@ class PublicController {
                         opponent: fight.fighter2,
                         myScore: fight.score.fighter1,
                         opponentScore: fight.score.fighter2,
-                        result: fight.winner === 'fighter1' ? 'win' 
+                        result: fight.winner === 'fighter1' ? 'win'
                               : fight.winner === 'fighter2' ? 'loss' : 'draw',
                         createdAt: fight.createdAt
                     })
                 } else {
                     totalScore += fight.score.fighter2
                     opponentScore += fight.score.fighter1
-                    
+
                     if (fight.winner === 'fighter2') wins++
                     else if (fight.winner === 'fighter1') losses++
                     else draws++
@@ -135,7 +137,7 @@ class PublicController {
                         opponent: fight.fighter1,
                         myScore: fight.score.fighter2,
                         opponentScore: fight.score.fighter1,
-                        result: fight.winner === 'fighter2' ? 'win' 
+                        result: fight.winner === 'fighter2' ? 'win'
                               : fight.winner === 'fighter1' ? 'loss' : 'draw',
                         createdAt: fight.createdAt
                     })
