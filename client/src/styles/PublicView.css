@@ -153,9 +153,15 @@ body {
 /* ── STATS ── */
 .stats-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 12px;
   margin-bottom: 28px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.stats-row::-webkit-scrollbar {
+  display: none;
 }
 
 .stat-card {
@@ -596,20 +602,6 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  .stats-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 10px;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .stats-row::-webkit-scrollbar {
-    display: none;
-  }
-
   .stat-card {
     flex: 0 0 auto;
     padding: 10px 14px;
