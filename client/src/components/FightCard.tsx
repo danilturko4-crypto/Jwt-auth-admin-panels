@@ -25,6 +25,12 @@ const FighterScoreCard: FC<{
     const bgHover = corner === 'red' ? '#fff1f2' : '#eff6ff'
     const borderColor = corner === 'red' ? '#ffc9cc' : '#c7d9fd'
 
+    if (!fighter) return (
+        <div style={{ padding: '20px', backgroundColor: '#f4f6fb', borderRadius: 12, border: `2px solid ${borderColor}`, textAlign: 'center', color: '#8890aa', fontSize: 13, fontWeight: 600, fontFamily: "'Manrope', sans-serif" }}>
+            Боец удалён
+        </div>
+    )
+
     return (
         <div
             onClick={onIncrement}
@@ -93,6 +99,12 @@ const FighterStaticCard: FC<{
     const color = corner === 'red' ? '#e63946' : '#1d6fe5'
     const borderColor = corner === 'red' ? '#ffc9cc' : '#c7d9fd'
 
+    if (!fighter) return (
+        <div style={{ padding: '16px', backgroundColor: '#f4f6fb', borderRadius: 12, border: `1.5px solid ${borderColor}`, color: '#8890aa', fontSize: 13, fontWeight: 600, fontFamily: "'Manrope', sans-serif" }}>
+            Боец удалён
+        </div>
+    )
+
     return (
         <div style={{
             padding: '16px',
@@ -137,8 +149,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
     const [score1, setScore1] = useState(fight.score.fighter1)
     const [score2, setScore2] = useState(fight.score.fighter2)
     const [showEditForm, setShowEditForm] = useState(false)
-    const [editFighter1, setEditFighter1] = useState(fight.fighter1._id)
-    const [editFighter2, setEditFighter2] = useState(fight.fighter2._id)
+    const [editFighter1, setEditFighter1] = useState(fight.fighter1?._id ?? '')
+    const [editFighter2, setEditFighter2] = useState(fight.fighter2?._id ?? '')
     const [editError, setEditError] = useState('')
     const [confirmAction, setConfirmAction] = useState<'cancel' | 'finish' | null>(null)
 
@@ -231,8 +243,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
             {fight.status === 'completed' && fight.winner && (
                 <div style={{ ...s.winnerBox, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Trophy size={13} /> Победитель: {
-                        fight.winner === 'fighter1' ? fight.fighter1.name :
-                        fight.winner === 'fighter2' ? fight.fighter2.name : 'Ничья'
+                        fight.winner === 'fighter1' ? (fight.fighter1?.name ?? 'Боец удалён') :
+                        fight.winner === 'fighter2' ? (fight.fighter2?.name ?? 'Боец удалён') : 'Ничья'
                     }
                 </div>
             )}
@@ -247,8 +259,8 @@ const FightCard: FC<Props> = ({ fight, canEdit, fighters = [], onStatusChange, o
                             </button>
                             {onEditFight && fighters.length > 0 && (
                                 <button style={{ ...s.btn, background: '#f4802a', display: 'inline-flex', alignItems: 'center', gap: 5 }} onClick={() => {
-                                    setEditFighter1(fight.fighter1._id)
-                                    setEditFighter2(fight.fighter2._id)
+                                    setEditFighter1(fight.fighter1?._id ?? '')
+                                    setEditFighter2(fight.fighter2?._id ?? '')
                                     setShowEditForm(v => !v)
                                     setEditError('')
                                 }}>

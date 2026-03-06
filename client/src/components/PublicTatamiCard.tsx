@@ -103,12 +103,12 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
                     <div className="matchup">
                         {/* Fighter 1 */}
                         <div className="fighter">
-                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); onFighterClick(fight.fighter1._id); }}>
+                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); fight.fighter1 && onFighterClick(fight.fighter1._id); }}>
                                 <span className="fighter-flag">🔴</span>
-                                <span>{fight.fighter1.name}</span>
+                                <span>{fight.fighter1?.name ?? 'Боец удалён'}</span>
                             </div>
                             <div className="fighter-country">
-                                {fight.fighter1.team}
+                                {fight.fighter1?.team}
                             </div>
                             <div className="fighter-score-wrap">
                                 <span className={`score ${
@@ -130,12 +130,12 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
 
                         {/* Fighter 2 */}
                         <div className="fighter right">
-                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); onFighterClick(fight.fighter2._id); }}>
-                                <span>{fight.fighter2.name}</span>
+                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); fight.fighter2 && onFighterClick(fight.fighter2._id); }}>
+                                <span>{fight.fighter2?.name ?? 'Боец удалён'}</span>
                                 <span className="fighter-flag">🔵</span>
                             </div>
                             <div className="fighter-country">
-                                {fight.fighter2.team}
+                                {fight.fighter2?.team}
                             </div>
                             <div className="fighter-score-wrap">
                                 <span className="win-tag" style={{ marginLeft: 'auto', marginRight: '8px' }}>

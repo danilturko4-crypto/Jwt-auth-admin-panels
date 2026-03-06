@@ -141,7 +141,10 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
         activeFights: activeFights.filter(f => f.status === 'in_progress').length,
         completed: activeFights.filter(f => f.status === 'completed').length,
         participants: new Set(
-            activeFights.flatMap(f => [String(f.fighter1._id), String(f.fighter2._id)])
+            activeFights.flatMap(f => [
+                f.fighter1 ? String(f.fighter1._id) : null,
+                f.fighter2 ? String(f.fighter2._id) : null,
+            ].filter(Boolean))
         ).size,
     }), [activeFights])
 
