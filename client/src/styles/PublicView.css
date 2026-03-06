@@ -601,6 +601,228 @@ body {
   color: var(--muted);
 }
 
+/* ── DESKTOP SCALE ── */
+@media (min-width: 769px) {
+  .header-inner {
+    max-width: 1400px;
+    height: 90px;
+    gap: 24px;
+  }
+
+  .public-container {
+    max-width: 1400px;
+    padding: 0 32px 72px;
+  }
+
+  .logo-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 26px;
+    border-radius: 14px;
+  }
+
+  .logo {
+    gap: 14px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+  }
+
+  .logo-text span {
+    font-size: 16px;
+  }
+
+  .live-pill {
+    font-size: 14px;
+    padding: 7px 16px;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .header-update {
+    font-size: 16px;
+  }
+
+  .update-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .page-title {
+    padding: 48px 0 30px;
+  }
+
+  .page-title h1 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+
+  .stats-row {
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    padding: 20px 26px;
+    gap: 14px;
+    border-radius: 18px;
+  }
+
+  .stat-icon {
+    font-size: 32px;
+  }
+
+  .stat-value {
+    font-size: 36px;
+  }
+
+  .stat-label {
+    font-size: 15px;
+  }
+
+  .tabs-wrap {
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    font-size: 16px;
+    padding: 12px 22px;
+    border-radius: 26px;
+  }
+
+  .tatami-section {
+    margin-bottom: 40px;
+  }
+
+  .tatami-header {
+    margin-bottom: 16px;
+  }
+
+  .tatami-badge {
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+    border-radius: 14px;
+  }
+
+  .tatami-left {
+    gap: 14px;
+  }
+
+  .tatami-name {
+    font-size: 22px;
+  }
+
+  .tatami-meta {
+    font-size: 16px;
+  }
+
+  .see-all {
+    font-size: 18px;
+  }
+
+  .fights-list {
+    gap: 14px;
+  }
+
+  .fight-card {
+    border-radius: 22px;
+  }
+
+  .fight-stripe {
+    width: 6px;
+  }
+
+  .fight-content {
+    padding: 24px 30px;
+  }
+
+  .fight-top {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .badge {
+    font-size: 13px;
+    padding: 5px 13px;
+  }
+
+  .fight-round-label {
+    font-size: 16px;
+  }
+
+  .matchup {
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 12px;
+  }
+
+  .fighter-flag-name {
+    font-size: 20px;
+    gap: 10px;
+  }
+
+  .fighter-flag {
+    font-size: 26px;
+  }
+
+  .fighter-country {
+    font-size: 15px;
+  }
+
+  .fighter-score-wrap {
+    margin-top: 10px;
+    gap: 8px;
+  }
+
+  .score {
+    font-size: 42px;
+  }
+
+  .win-tag {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .vs-line {
+    height: 30px;
+  }
+
+  .vs-text {
+    font-size: 17px;
+  }
+
+  .fight-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    gap: 16px;
+  }
+
+  .timer-text {
+    font-size: 18px;
+  }
+
+  .timer-sub {
+    font-size: 15px;
+  }
+
+  .empty-card {
+    padding: 60px 30px;
+    border-radius: 22px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+  }
+
+  .empty-text {
+    font-size: 18px;
+  }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .stats-row {
