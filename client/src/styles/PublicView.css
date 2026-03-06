@@ -176,6 +176,7 @@ body {
   gap: 10px;
   animation: fadeUp 0.4s ease backwards;
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 .stat-card:nth-child(1) { animation-delay: 0.0s; }
@@ -602,9 +603,22 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
+  .stats-row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
   .stat-card {
-    flex: 0 0 auto;
-    padding: 10px 14px;
+    flex: 1 1 calc(50% - 6px);
+    padding: 12px 14px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-icon {
+    font-size: 20px;
   }
 
   .header-inner {
