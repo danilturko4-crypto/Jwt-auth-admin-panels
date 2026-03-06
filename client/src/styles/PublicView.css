@@ -598,8 +598,24 @@ body {
   }
 
   .header-inner {
-    height: 56px;
+    height: auto;
+    min-height: 56px;
     flex-wrap: wrap;
+    padding: 10px 0;
+    row-gap: 6px;
+  }
+
+  /* Лого + Live — одна строка */
+  .logo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Время обновления — отдельная строка */
+  .header-update {
+    width: 100%;
+    order: 3;
+    font-size: 11px;
   }
 
   .page-title {
@@ -651,16 +667,18 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .header-inner {
-    gap: 10px;
-  }
-
   .logo-text {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .logo-text span {
-    font-size: 9px;
+    font-size: 10px;
+  }
+
+  /* На очень маленьких экранах прячем время — оставляем только точку-индикатор */
+  .header-update span,
+  .header-update {
+    display: none;
   }
 
   .fight-content {
