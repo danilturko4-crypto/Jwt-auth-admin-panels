@@ -1,17 +1,5 @@
 import { useEffect, useState, useRef, useMemo, useCallback, type FC } from "react";
 import { observer } from "mobx-react-lite";
-
-const TatamiIcon: FC<{ size?: number }> = ({ size = 18 }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width={size} height={size} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}>
-        <rect x="4" y="10" width="56" height="44" rx="4" fill="#d4a853" />
-        <rect x="4" y="10" width="56" height="44" rx="4" fill="none" stroke="#8b6220" strokeWidth="3" />
-        <rect x="8" y="14" width="48" height="36" rx="2" fill="none" stroke="#8b6220" strokeWidth="1.5" />
-        <line x1="32" y1="14" x2="32" y2="50" stroke="#8b6220" strokeWidth="1.5" />
-        <line x1="8" y1="32" x2="32" y2="32" stroke="#8b6220" strokeWidth="1.5" />
-        <line x1="32" y1="22" x2="56" y2="22" stroke="#8b6220" strokeWidth="1.5" />
-        <line x1="32" y1="42" x2="56" y2="42" stroke="#8b6220" strokeWidth="1.5" />
-    </svg>
-);
 import type { ITatami } from "../models/ITatami";
 import type { IFight } from "../models/IFight";
 import PublicService from "../services/PublicService";
@@ -226,31 +214,23 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                 <div className="stats-row">
                     <div className="stat-card">
                         <div className="stat-icon">⚡</div>
-                        <div>
-                            <div className="stat-value">{stats.activeFights}</div>
-                            <div className="stat-label">Активных боёв</div>
-                        </div>
+                        <div className="stat-value">{stats.activeFights}</div>
+                        <div className="stat-label">Активных боёв</div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon"><TatamiIcon size={26} /></div>
-                        <div>
-                            <div className="stat-value">{tatamis.length}</div>
-                            <div className="stat-label">Татами</div>
-                        </div>
+                        <div className="stat-icon">🏟</div>
+                        <div className="stat-value">{tatamis.length}</div>
+                        <div className="stat-label">Татами</div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon">👤</div>
-                        <div>
-                            <div className="stat-value">{stats.participants}</div>
-                            <div className="stat-label">Участников</div>
-                        </div>
+                        <div className="stat-icon">🥋</div>
+                        <div className="stat-value">{stats.participants}</div>
+                        <div className="stat-label">Участников</div>
                     </div>
                     <div className="stat-card">
                         <div className="stat-icon">✅</div>
-                        <div>
-                            <div className="stat-value">{stats.completed}</div>
-                            <div className="stat-label">Завершено</div>
-                        </div>
+                        <div className="stat-value">{stats.completed}</div>
+                        <div className="stat-label">Завершено</div>
                     </div>
                 </div>
 
@@ -284,7 +264,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                                 className={`tab ${isSelected ? 'active' : ''}`}
                                 onClick={() => handleSelectTatami(tatami)}
                             >
-                                <TatamiIcon size={14} /> Татами №{tatami.number}
+                                🥋 Татами №{tatami.number}
                                 {activeCount > 0 && (
                                     <span style={{
                                         marginLeft: 6,
@@ -307,7 +287,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                     <div>
                         <div className="tatami-header">
                             <div className="tatami-left">
-                                <div className="tatami-badge"><TatamiIcon size={20} /></div>
+                                <div className="tatami-badge">🥋</div>
                                 <div>
                                     <div className="tatami-name">Татами №{selectedTatami.number}</div>
                                     <div className="tatami-meta">
