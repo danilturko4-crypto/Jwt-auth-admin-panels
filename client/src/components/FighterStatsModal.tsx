@@ -1,6 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import PublicService, { type IFighterStats } from "../services/PublicService";
-import { Dumbbell, MapPin, Scale, Search, Clock } from 'lucide-react';
+import { MapPin, Scale, Search, Clock } from 'lucide-react';
 
 interface Props {
     fighterId: string;
@@ -454,7 +454,7 @@ const FighterStatsModal: FC<Props> = ({ fighterId, onClose }) => {
                                             />
                                         )}
                                         <div>
-                                            <h2 className="fsm-fighter-name" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Dumbbell size={22} /> {stats.fighter.name}</h2>
+                                            <h2 className="fsm-fighter-name">{stats.fighter.name}</h2>
                                             <div className="fsm-fighter-meta">
                                                 {stats.fighter.team && (
                                                     <span className="fsm-badge"><MapPin size={11} /> {stats.fighter.team}</span>
