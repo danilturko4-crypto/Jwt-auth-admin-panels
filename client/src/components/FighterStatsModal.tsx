@@ -1,6 +1,6 @@
 import { useEffect, useState, type FC } from "react";
 import PublicService, { type IFighterStats } from "../services/PublicService";
-import { Dumbbell, MapPin, Scale, Search, Clock, Trophy } from 'lucide-react';
+import { MapPin, Scale, Search, Clock, Trophy } from 'lucide-react';
 
 interface Props {
     fighterId: string;
