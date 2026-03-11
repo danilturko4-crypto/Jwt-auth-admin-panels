@@ -20,7 +20,7 @@
 }
 
 .fight-stripe.upcoming { background: linear-gradient(180deg, var(--blue), #a0c4ff); }
-.fight-stripe.finished { background: var(--border); }
+.fight-stripe.finished { background: linear-gradient(180deg, var(--green), #6ed4a6); }
 
 .fight-content { flex: 1; padding: 16px 20px; }
 
