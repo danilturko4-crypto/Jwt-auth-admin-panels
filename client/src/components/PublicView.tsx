@@ -1,4 +1,9 @@
 import { useEffect, useState, useRef, useMemo, useCallback, type FC } from "react";
+import iconKarate from  '../assets/Kyokushinkai.png'
+import tatamiIcon from '../assets/tatami.png'
+import kimono from '../assets/kimono.png'
+import accept from '../assets/accept.png'
+import tournamentIcon from '../assets/cup-trophy-svgrepo-com(1).svg'
 import { observer } from "mobx-react-lite";
 import type { ITatami } from "../models/ITatami";
 import type { IFight } from "../models/IFight";
@@ -33,8 +38,8 @@ const PublicView: FC = () => {
                 PublicService.getActiveFights()
             ])
 
-            setTatamis(tatamisRes.data)
-            setActiveFights(fightsRes.data)
+            setTatamis(Array.isArray(tatamisRes.data) ? tatamisRes.data : [])
+            setActiveFights(Array.isArray(fightsRes.data) ? fightsRes.data : [])
             setLastUpdated(new Date())
             setUpdateError(false)
 
@@ -176,7 +181,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
             <header className="public-header">
                 <div className="header-inner">
                     <div className="logo">
-                        <div className="logo-icon">🥋</div>
+                        <div className="logo-icon"><img src={iconKarate} alt="" /></div>
                         <div className="logo-text">
                             Боевые искусства
                             <span>Онлайн-трансляция турнира</span>
@@ -211,28 +216,36 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                 </div>
 
                 {/* STATS */}
-                <div className="stats-row">
+                    <div className="stats-row">
                     <div className="stat-card">
                         <div className="stat-icon">⚡</div>
+                        <div className="stat-info">
                         <div className="stat-value">{stats.activeFights}</div>
                         <div className="stat-label">Активных боёв</div>
+                        </div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon">🏟</div>
+                        <div className="stat-icon"><img src={tournamentIcon} alt="" /></div>
+                        <div className="stat-info">
                         <div className="stat-value">{tatamis.length}</div>
                         <div className="stat-label">Татами</div>
+                        </div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon">🥋</div>
+                        <div className="stat-icon"><img src={kimono} alt="" /></div>
+                        <div className="stat-info">
                         <div className="stat-value">{stats.participants}</div>
                         <div className="stat-label">Участников</div>
+                        </div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-icon">✅</div>
+                        <div className="stat-icon"><img src={accept} alt="" /></div>
+                        <div className="stat-info">
                         <div className="stat-value">{stats.completed}</div>
                         <div className="stat-label">Завершено</div>
+                        </div>
                     </div>
-                </div>
+                    </div>  
 
                 {/* TABS — с бейджами активных боёв на каждом татами */}
                 <div className="tabs-wrap">
@@ -264,7 +277,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                                 className={`tab ${isSelected ? 'active' : ''}`}
                                 onClick={() => handleSelectTatami(tatami)}
                             >
-                                🥋 Татами №{tatami.number}
+                                Татами №{tatami.number}
                                 {activeCount > 0 && (
                                     <span style={{
                                         marginLeft: 6,
@@ -287,7 +300,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                     <div>
                         <div className="tatami-header">
                             <div className="tatami-left">
-                                <div className="tatami-badge">🥋</div>
+                                <div className="tatami-badge"><img src={tatamiIcon} alt="Татами" className="tatami-badge-img" /></div>
                                 <div>
                                     <div className="tatami-name">Татами №{selectedTatami.number}</div>
                                     <div className="tatami-meta">
@@ -337,7 +350,7 @@ const getPreviewFightsForTatami = useCallback((tatamiId: string) => {
                                     <div key={tatami._id} className="tatami-section">
                                         <div className="tatami-header">
                                             <div className="tatami-left">
-                                                <div className="tatami-badge">🥋</div>
+                                                <div className="tatami-badge"><img src={tatamiIcon} alt="Татами" className="tatami-badge-img" /></div>
                                                 <div>
                                                     <div className="tatami-name">
                                                         Татами №{tatami.number} — {tatami.name}

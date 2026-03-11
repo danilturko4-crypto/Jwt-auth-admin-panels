@@ -1,6 +1,6 @@
 import { useState, useEffect, type FC } from "react";
 import type { IFight } from "../models/IFight";
-
+import '../styles/PublicTatamiCard.css'
 interface Props {
     fight: IFight;
     onFighterClick: (fighterId: string) => void;
@@ -11,7 +11,7 @@ interface Props {
 
 const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalFights, onCardClick }) => {
     const [elapsedTime, setElapsedTime] = useState(0);
-    const TOTAL_ROUND_TIME = 180; // 3 minutes
+    const TOTAL_ROUND_TIME = 180;
 
     useEffect(() => {
         if (fight.status !== 'in_progress') return;
@@ -78,38 +78,38 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
 
     const getRoundLabel = () => `Бой ${fightIndex} / ${totalFights}`;
 
-    const getWeightLabel = () => {
-        if (fight.fighter1.weight && fight.fighter1.team) {
-            return `${fight.fighter1.weight} · ${fight.fighter1.team}`;
-        }
-        return fight.fighter1.weight || fight.fighter1.team || '';
-    };
-    
     return (
         <div className="fight-card" onClick={onCardClick} style={onCardClick ? { cursor: 'pointer' } : undefined}>
             <div className="fight-inner">
                 <div className={`fight-stripe ${getStripeClass()}`}></div>
                 <div className="fight-content">
-                    {/* Top row with badge and info */}
+
+                    {/* Top row */}
                     <div className="fight-top">
                         <span className={`badge ${getStatusBadgeClass()}`}>
                             {getStatusText()}
                         </span>
                         <span className="fight-round-label">{getRoundLabel()}</span>
-                        {getWeightLabel() && <span className="fight-weight">{getWeightLabel()}</span>}
                     </div>
 
                     {/* Matchup grid */}
                     <div className="matchup">
+
                         {/* Fighter 1 */}
                         <div className="fighter">
-                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); fight.fighter1 && onFighterClick(fight.fighter1._id); }}>
+                            <div
+                                className="fighter-flag-name fighter-clickable"
+                                onClick={(e) => { e.stopPropagation(); fight.fighter1 && onFighterClick(fight.fighter1._id); }}
+                                title="Профиль бойца"
+                            >
+                                <span className="fighter-name-text">{fight.fighter1?.name ?? 'Боец удалён'}</span>
                                 <span className="fighter-flag">🔴</span>
-                                <span>{fight.fighter1?.name ?? 'Боец удалён'}</span>
+
                             </div>
-                            <div className="fighter-country">
-                                {fight.fighter1?.team}
-                            </div>
+                            <div className="fighter-country">{fight.fighter1?.team}</div>
+                            {fight.fighter1?.weight && (
+                                <div className="fighter-weight-inline">{fight.fighter1.weight}</div>
+                            )}
                             <div className="fighter-score-wrap">
                                 <span className={`score ${
                                     fight.winner === 'fighter1' ? 'win' :
@@ -130,17 +130,21 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
 
                         {/* Fighter 2 */}
                         <div className="fighter right">
-                            <div className="fighter-flag-name" onClick={(e) => { e.stopPropagation(); fight.fighter2 && onFighterClick(fight.fighter2._id); }}>
-                                <span>{fight.fighter2?.name ?? 'Боец удалён'}</span>
+                            <div
+                                className="fighter-flag-name fighter-clickable"
+                                onClick={(e) => { e.stopPropagation(); fight.fighter2 && onFighterClick(fight.fighter2._id); }}
+                                title="Профиль бойца"
+                            >
+                                <span className="fighter-name-text">{fight.fighter2?.name ?? 'Боец удалён'}</span>
                                 <span className="fighter-flag">🔵</span>
+
                             </div>
-                            <div className="fighter-country">
-                                {fight.fighter2?.team}
-                            </div>
-                            <div className="fighter-score-wrap">
-                                <span className="win-tag" style={{ marginLeft: 'auto', marginRight: '8px' }}>
-                                    {fight.winner === 'fighter2' && 'Победа'}
-                                </span>
+                            <div className="fighter-country">{fight.fighter2?.team}</div>
+                            {fight.fighter2?.weight && (
+                                <div className="fighter-weight-inline">{fight.fighter2.weight}</div>
+                            )}
+                            <div className="fighter-score-wrap" style={{ justifyContent: 'flex-end' }}>
+                                {fight.winner === 'fighter2' && <span className="win-tag">Победа</span>}
                                 <span className={`score ${
                                     fight.winner === 'fighter2' ? 'win' :
                                     fight.winner === 'fighter1' ? 'lose' : 'neutral'
@@ -149,9 +153,10 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
                                 </span>
                             </div>
                         </div>
+
                     </div>
 
-                    {/* Timer and progress for in_progress fights */}
+                    {/* Timer */}
                     {fight.status === 'in_progress' && fight.startTime && (
                         <div className="fight-footer">
                             <div className="timer-block">
@@ -174,5 +179,3 @@ const PublicTatamiCard: FC<Props> = ({ fight, onFighterClick, fightIndex, totalF
 };
 
 export default PublicTatamiCard;
-
-    
